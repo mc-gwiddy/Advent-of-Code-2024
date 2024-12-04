@@ -1,0 +1,123 @@
+Sub AOC2024D04P02()
+
+GH = WorksheetFunction.CountA(Range("A:A")) - 1
+GL = Len(Range("A1")) - 1
+
+Dim GRID() As Variant
+Dim GCOUNT() As Variant
+Dim XMAS() As Variant
+Dim DIR() As Variant
+Dim XCOUNT As Integer
+Dim ISXMAS As Boolean
+ReDim DIR(4)
+ReDim XMAS(3)
+ReDim GRID(GL, GH)
+ReDim GCOUNT(GL, GH)
+
+DIR(0) = "RU"
+DIR(1) = "LU"
+DIR(2) = "RD"
+DIR(3) = "LD"
+XMAS(0) = "M"
+XMAS(1) = "A"
+XMAS(2) = "S"
+
+XCOUNT = 0
+
+For Y = 0 To GH
+    For X = 0 To GL
+    GRID(X, Y) = Mid(Range("A" & GH - Y + 1), X + 1, 1)
+    GCOUNT(X, Y) = 0
+    Next X
+Next Y
+
+For Y = 0 To GH
+    For X = 0 To GL
+            For D = 0 To 4
+            DMOVE = DIR(D)
+            ISXMAS = False
+                For L = 0 To 2
+                    Select Case DMOVE
+                    Case "RU"
+                    If Y + L > GH Or X + L > GL Then
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    V = GRID(X + L, Y + L)
+                    If V = XMAS(L) Then
+                    ISXMAS = True
+                    Else
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    Case "RD"
+                    If Y - L < 0 Or X + L > GL Then
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    V = GRID(X + L, Y - L)
+                    If V = XMAS(L) Then
+                    ISXMAS = True
+                    Else
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    Case "LU"
+                    If Y + L > GH Or X - L < 0 Then
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    V = GRID(X - L, Y + L)
+                    If V = XMAS(L) Then
+                    ISXMAS = True
+                    Else
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    Case "LD"
+                    If Y - L < 0 Or X - L < 0 Then
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    V = GRID(X - L, Y - L)
+                    If V = XMAS(L) Then
+                    ISXMAS = True
+                    Else
+                    ISXMAS = False
+                    Exit For
+                    End If
+                End Select
+                Next L
+            Select Case DMOVE
+            Case "RU"
+            If ISXMAS = True Then
+            GCOUNT(X + 1, Y + 1) = GCOUNT(X + 1, Y + 1) + 1
+            End If
+            Case "RD"
+            If ISXMAS = True Then
+            GCOUNT(X + 1, Y - 1) = GCOUNT(X + 1, Y - 1) + 1
+            End If
+            Case "LU"
+            If ISXMAS = True Then
+            GCOUNT(X - 1, Y + 1) = GCOUNT(X - 1, Y + 1) + 1
+            End If
+            Case "LD"
+            If ISXMAS = True Then
+            GCOUNT(X - 1, Y - 1) = GCOUNT(X - 1, Y - 1) + 1
+            End If
+            End Select
+            Next D
+    Next X
+Next Y
+
+For Y = 0 To GH
+    For X = 0 To GL
+        If GCOUNT(X, Y) = 2 Then
+        XCOUNT = XCOUNT + 1
+        End If
+    Next X
+Next Y
+    
+Debug.Print XCOUNT
+
+End Sub
