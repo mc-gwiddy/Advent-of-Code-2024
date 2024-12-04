@@ -1,0 +1,150 @@
+Sub AOC2024D04P01()
+
+GH = WorksheetFunction.CountA(Range("A:A")) - 1
+GL = Len(Range("A1")) - 1
+
+Dim GRID() As Variant
+Dim XMAS() As Variant
+Dim DIR() As Variant
+Dim XCOUNT As Integer
+Dim ISXMAS As Boolean
+ReDim DIR(7)
+ReDim XMAS(3)
+ReDim GRID(GL, GH)
+
+DIR(0) = "R"
+DIR(1) = "L"
+DIR(2) = "U"
+DIR(3) = "D"
+DIR(4) = "RU"
+DIR(5) = "LU"
+DIR(6) = "RD"
+DIR(7) = "LD"
+XMAS(0) = "X"
+XMAS(1) = "M"
+XMAS(2) = "A"
+XMAS(3) = "S"
+
+XCOUNT = 0
+
+For Y = 0 To GH
+    For X = 0 To GL
+    GRID(X, Y) = Mid(Range("A" & GH - Y + 1), X + 1, 1)
+    Next X
+Next Y
+
+For Y = 0 To GH
+    For X = 0 To GL
+            For D = 0 To 7
+            DMOVE = DIR(D)
+            ISXMAS = False
+                For L = 0 To 3
+                    Select Case DMOVE
+                    Case "R"
+                    If X + L > GL Then
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    V = GRID(X + L, Y)
+                    If V = XMAS(L) Then
+                    ISXMAS = True
+                    Else
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    Case "L"
+                    If X - L < 0 Then
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    V = GRID(X - L, Y)
+                    If V = XMAS(L) Then
+                    ISXMAS = True
+                    Else
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    Case "U"
+                    If Y + L > GH Then
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    V = GRID(X, Y + L)
+                    If V = XMAS(L) Then
+                    ISXMAS = True
+                    Else
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    Case "D"
+                    If Y - L < 0 Then
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    V = GRID(X, Y - L)
+                    If V = XMAS(L) Then
+                    ISXMAS = True
+                    Else
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    Case "RU"
+                    If Y + L > GH Or X + L > GL Then
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    V = GRID(X + L, Y + L)
+                    If V = XMAS(L) Then
+                    ISXMAS = True
+                    Else
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    Case "RD"
+                    If Y - L < 0 Or X + L > GL Then
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    V = GRID(X + L, Y - L)
+                    If V = XMAS(L) Then
+                    ISXMAS = True
+                    Else
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    Case "LU"
+                    If Y + L > GH Or X - L < 0 Then
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    V = GRID(X - L, Y + L)
+                    If V = XMAS(L) Then
+                    ISXMAS = True
+                    Else
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    Case "LD"
+                    If Y - L < 0 Or X - L < 0 Then
+                    ISXMAS = False
+                    Exit For
+                    End If
+                    V = GRID(X - L, Y - L)
+                    If V = XMAS(L) Then
+                    ISXMAS = True
+                    Else
+                    ISXMAS = False
+                    Exit For
+                    End If
+                End Select
+                Next L
+            If ISXMAS = True Then
+            XCOUNT = XCOUNT + 1
+            End If
+            Next D
+    Next X
+Next Y
+    
+Debug.Print XCOUNT
+
+End Sub
