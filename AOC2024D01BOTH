@@ -1,0 +1,96 @@
+Sub AOC2024D01P01()
+
+Dim LCOUNT As Integer
+Dim L() As Variant
+Dim R() As Variant
+Dim LFLOOR As Long
+Dim RFLOOR As Long
+Dim LMIN As Long
+Dim RMIN As Long
+Dim D As Long
+
+D = 0
+LFLOOR = 0
+RFLOOR = 0
+LMIN = 10000000
+RMIN = 10000000
+RIND = 0
+LCOUNT = WorksheetFunction.CountA(Range("A:A"))
+ReDim Preserve L(LCOUNT)
+ReDim Preserve R(LCOUNT)
+
+For X = 1 To LCOUNT
+I = Range("A" & X)
+L(X) = CLng(Split(I, "  ")(0))
+R(X) = CLng(Split(I, "  ")(1))
+Next X
+
+ITERS = 0
+
+Do Until ITERS = LCOUNT
+
+For M = 1 To LCOUNT
+    If L(M) < LMIN And L(M) > LFLOOR Then
+    LMIN = L(M)
+    End If
+Next M
+For M = 1 To LCOUNT
+    Select Case R(M)
+    Case RFLOOR
+        If M > RIND Then
+        RMIN = R(M)
+        NEWRIND = M
+        Exit For
+        End If
+    Case Is > RFLOOR
+        If R(M) < RMIN Then
+        RMIN = R(M)
+        NEWRIND = M
+        End If
+    End Select
+Next M
+
+ITERS = ITERS + 1
+D = D + Abs(LMIN - RMIN)
+LFLOOR = LMIN
+RFLOOR = RMIN
+LMIN = 10000000
+RMIN = 10000000
+RIND = NEWRIND
+Loop
+
+Debug.Print D
+
+End Sub
+Sub AOC2024D01P02()
+
+Dim LCOUNT As Integer
+Dim L() As Variant
+Dim R() As Variant
+Dim LRCOUNT As Integer
+Dim S As Long
+S = 0
+
+LCOUNT = WorksheetFunction.CountA(Range("A:A"))
+ReDim Preserve L(LCOUNT)
+ReDim Preserve R(LCOUNT)
+
+For X = 1 To LCOUNT
+I = Range("A" & X)
+L(X) = CLng(Split(I, "  ")(0))
+R(X) = CLng(Split(I, "  ")(1))
+Next X
+
+For LV = 1 To LCOUNT
+    N = L(LV)
+    LRCOUNT = 0
+    For RV = 1 To LCOUNT
+    If R(RV) = N Then
+    LRCOUNT = LRCOUNT + 1
+    End If
+    Next RV
+S = S + N * LRCOUNT
+Next LV
+Debug.Print S
+
+End Sub
