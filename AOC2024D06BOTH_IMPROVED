@@ -113,6 +113,8 @@ Debug.Print visited
 End Sub
 Sub AOC2024D06P02SMARTER()
 
+Call AOC2024D06P01
+
 Dim grid() As Variant
 Dim visits() As Variant
 Dim xc As Integer
