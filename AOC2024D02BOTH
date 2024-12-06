@@ -1,0 +1,114 @@
+Public Function UPDOWNLIMITS(SEQ As String)
+
+Dim L As Integer
+Dim DIR As String
+Dim PDRI As String
+Dim DIF As Integer
+Dim ADIF As Integer
+Dim SAFE As Boolean
+
+L1 = Len(SEQ)
+L2 = Len(Replace(SEQ, " ", ""))
+
+L = L1 - L2 + 1
+
+DIR = "N"
+
+    For N = 2 To L
+        PDIR = DIR
+        N1 = CInt(Split(SEQ, " ")(N - 1))
+        N2 = CInt(Split(SEQ, " ")(N - 2))
+        DIF = N1 - N2
+        ADIF = Abs(DIF)
+        If DIF < 0 Then
+        DIR = "-"
+        ElseIf DIF > 0 Then
+        DIR = "+"
+        Else
+        DIR = "N"
+        End If
+            Select Case DIR
+            Case PDIR
+                If ADIF > 0 And ADIF < 4 Then
+                SAFE = True
+                Else
+                SAFE = False
+                Exit For
+                End If
+            Case Else
+            If PDIR = "N" And ADIF > 0 And ADIF < 4 Then
+                SAFE = True
+                Else
+                SAFE = False
+                Exit For
+                End If
+            End Select
+    Next N
+    
+UPDOWNLIMITS = SAFE
+        
+End Function
+
+Sub AOC2024D02P01()
+
+Dim LCOUNT As Integer
+Dim ISSAFE As Boolean
+Dim LSTRING As String
+Dim SAFECOUNT As Integer
+
+LCOUNT = WorksheetFunction.CountA(Range("A:A"))
+SAFECOUNT = 0
+For X = 1 To LCOUNT
+LSTRING = Range("A" & X)
+ISSAFE = UPDOWNLIMITS(LSTRING)
+    If ISSAFE = True Then
+    SAFECOUNT = SAFECOUNT + 1
+    End If
+Next X
+    
+Debug.Print SAFECOUNT
+    
+End Sub
+
+Sub AOC2024D02P02()
+
+Dim LCOUNT As Integer
+Dim ISSAFE As Boolean
+Dim LSTRING As String
+Dim SAFECOUNT As Integer
+Dim SLEN As Integer
+Dim NSTRING As String
+
+LCOUNT = WorksheetFunction.CountA(Range("A:A"))
+SAFECOUNT = 0
+
+For X = 1 To LCOUNT
+LSTRING = Range("A" & X)
+SLEN = Len(LSTRING) - Len(Replace(LSTRING, " ", "")) + 1
+    Select Case UPDOWNLIMITS(LSTRING)
+    Case False
+        For S = 1 To SLEN
+        NSTRING = ""
+            For C = 1 To SLEN
+                If C <> S Then
+                    If NSTRING = "" Then
+                    NSTRING = Split(LSTRING, " ")(C - 1)
+                    Else
+                    NSTRING = NSTRING & " " & Split(LSTRING, " ")(C - 1)
+                    End If
+                End If
+            Next C
+        ISSAFE = UPDOWNLIMITS(NSTRING)
+        If ISSAFE = True Then
+        SAFECOUNT = SAFECOUNT + 1
+        Exit For
+        End If
+        Next S
+    Case True
+    SAFECOUNT = SAFECOUNT + 1
+    End Select
+Next X
+    
+Debug.Print SAFECOUNT
+
+End Sub
