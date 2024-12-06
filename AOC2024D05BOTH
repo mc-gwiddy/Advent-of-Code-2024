@@ -1,0 +1,72 @@
+Sub AOC2024D05()
+
+rcount = WorksheetFunction.CountIfs(Range("A:A"), "*|*")
+ucount = WorksheetFunction.CountIfs(Range("A:A"), "*,*")
+
+Dim ordered As Boolean
+Dim rules() As Variant
+Dim updates() As Variant
+Dim midsum1 As Long
+Dim midsum2 As Long
+ReDim rules(rcount, 1)
+ReDim updates(ucount, 1)
+x = 0
+midsum1 = 0
+midsum2 = 0
+For r = 1 To rcount
+rule = Range("a" & r)
+rules(r, 0) = Split(rule, "|")(0)
+rules(r, 1) = Split(rule, "|")(1)
+Next r
+
+For u = 1 To ucount
+updates(u, 0) = "," & Range("a" & r + u) & ","
+updates(u, 1) = "tbd"
+Next u
+
+For u = 1 To ucount
+ordered = False
+    Do Until ordered = True
+    ordered = True
+        For r = 1 To rcount
+        p1 = InStr(1, updates(u, 0), "," & rules(r, 0) & ",")
+        p2 = InStr(1, updates(u, 0), "," & rules(r, 1) & ",")
+        If p2 < p1 And p2 > 0 Then
+        ordered = False
+        updates(u, 1) = "reorder"
+        updates(u, 0) = Replace(updates(u, 0), rules(r, 1) & ",", "")
+        updates(u, 0) = Replace(updates(u, 0), ",,", ",")
+        ulen = Len(updates(u, 0))
+        leftlen = InStr(1, updates(u, 0), "," & rules(r, 0) & ",")
+        updates(u, 0) = Left(updates(u, 0), leftlen + Len(rules(r, 0))) & "," & rules(r, 1) & Right(updates(u, 0), ulen - (leftlen + Len(rules(r, 0))))
+        End If
+        Next r
+    If ordered = True Then
+        Select Case updates(u, 1)
+        Case "tbd"
+        updates(u, 1) = "y"
+        Case "reorder"
+        updates(u, 1) = "fixed"
+        End Select
+    End If
+    Loop
+Next u
+
+For u = 1 To ucount
+ustring = updates(u, 0)
+ustring = Left(ustring, Len(ustring) - 1)
+ustring = Right(ustring, Len(ustring) - 1)
+pcount = Len(ustring) - Len(Replace(ustring, ",", ""))
+middle = CInt(Split(ustring, ",")(pcount / 2))
+Select Case updates(u, 1)
+Case "y"
+midsum1 = midsum1 + middle
+Case "fixed"
+midsum2 = midsum2 + middle
+End Select
+Next u
+
+Debug.Print midsum1
+Debug.Print midsum2
+
+End Sub
