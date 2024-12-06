@@ -1,0 +1,95 @@
+Sub AOC2024D03()
+
+LCOUNT = WorksheetFunction.CountA(Range("A:A"))
+LSTRING = WorksheetFunction.Concat(Range("A1:A" & LCOUNT))
+LLEN = Len(LSTRING)
+
+Dim MULLIST() As Variant
+Dim MULCOUT As Integer
+Dim DOORDONT As String
+Dim CLOSEP As String
+Dim MULLADD As String
+Dim MULCOUNT As Integer
+Dim TESTV As String
+Dim P1SUM As Long
+Dim P2SUM As Long
+ReDim MULLIST(LLEN)
+
+P1SUM = 0
+P2SUM = 0
+
+For X = 1 To LLEN
+C = Mid(LSTRING, X, 1)
+    Select Case C
+    Case "m"
+        If Mid(LSTRING, X + 1, 1) = "u" And Mid(LSTRING, X + 2, 1) = "l" And Mid(LSTRING, X + 3, 1) = "(" Then
+            MULCOUNT = MULCOUNT + 1
+            CLOSEP = ""
+            MULADD = ""
+            PFIND = 0
+            Do Until CLOSEP = ")"
+            PFIND = PFIND + 1
+            CLOSEP = Mid(LSTRING, X + 3 + PFIND, 1)
+            If CLOSEP <> ")" Then
+            MULADD = MULADD & CLOSEP
+            End If
+            Loop
+                MCHECK = False
+                For MFIX = 1 To Len(MULADD)
+                    Select Case Asc(Mid(MULADD, MFIX, 1))
+                    Case Is < 44
+                    MCHECK = False
+                    MULCOUNT = MULCOUNT - 1
+                    Exit For
+                    Case 44
+                    MCHECK = True
+                    Case 45 To 47
+                    MCHECK = False
+                    MULCOUNT = MULCOUNT - 1
+                    Exit For
+                    Case 48 To 57
+                    MCHECK = True
+                    Case Else
+                    MCHECK = False
+                    MULCOUNT = MULCOUNT - 1
+                    Exit For
+                    End Select
+                Next MFIX
+                If MCHECK = True Then
+                MULLIST(MULCOUNT) = MULADD
+                End If
+        End If
+    Case "d"
+        If Mid(LSTRING, X + 1, 1) = "o" And Mid(LSTRING, X + 2, 1) <> "n" Then
+        MULCOUNT = MULCOUNT + 1
+        MULLIST(MULCOUNT) = "do"
+        End If
+        If Mid(LSTRING, X + 1, 1) = "o" And Mid(LSTRING, X + 2, 1) = "n" And Mid(LSTRING, X + 3, 1) = "'" And Mid(LSTRING, X + 4, 1) = "t" Then
+        MULCOUNT = MULCOUNT + 1
+        MULLIST(MULCOUNT) = "don't"
+        End If
+    End Select
+
+Next X
+
+DOORDONT = "do"
+
+For V1 = 1 To MULCOUNT
+    MSET = MULLIST(V1)
+    Select Case MSET
+    Case "do"
+    DOORDONT = "do"
+    Case "don't"
+    DOORDONT = "don't"
+    Case Else
+    P1SUM = P1SUM + Split(MSET, ",")(0) * Split(MSET, ",")(1)
+    If DOORDONT = "do" Then
+    P2SUM = P2SUM + Split(MSET, ",")(0) * Split(MSET, ",")(1)
+    End If
+    End Select
+Next V1
+
+Debug.Print P1SUM
+Debug.Print P2SUM
+
+End Sub
