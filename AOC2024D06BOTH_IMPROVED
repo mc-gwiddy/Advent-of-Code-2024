@@ -1,0 +1,247 @@
+Sub AOC2024D06P01()
+
+Dim grid() As Variant
+Dim visits() As Variant
+Dim xc As Integer
+Dim yc As Integer
+Dim visited As Long
+Dim dir As String
+Dim steps As Long
+Dim ob As Boolean
+Dim maxv As Long
+gridh = WorksheetFunction.CountA(Range("A:A"))
+gridl = Len(Range("A1"))
+ReDim grid(gridl, gridh)
+ReDim visits(gridl, gridh)
+Dim COORDS()
+
+
+For y = 1 To gridh
+    For x = 1 To gridl
+    grid(x, y) = Mid(Range("A" & y), x, 1)
+    'Debug.Print grid(x, y)
+    visits(x, y) = 0
+    If grid(x, y) <> "." And grid(x, y) <> "#" Then
+    xc = x
+    yc = y
+    visits(xc, yc) = 1
+        Select Case grid(x, y)
+        Case "^"
+        dir = "u"
+        Case "v"
+        dir = "d"
+        Case "<"
+        dir = "l"
+        Case ">"
+        dir = "r"
+        End Select
+    End If
+    Next x
+Next y
+
+steps = 0
+ob = False
+Do Until ob = True
+ob = False
+    Select Case dir
+        Case "u"
+        If yc - 1 < 1 Then
+        ob = True
+        Exit Do
+        End If
+        If grid(xc, yc - 1) = "#" Then
+        dir = "r"
+        Else
+        yc = yc - 1
+        visits(xc, yc) = visits(xc, yc) + 1
+        steps = steps + 1
+        End If
+        Case "d"
+        If yc + 1 > gridh Then
+        ob = True
+        Exit Do
+        End If
+        If grid(xc, yc + 1) = "#" Then
+        dir = "l"
+        Else
+        yc = yc + 1
+        visits(xc, yc) = visits(xc, yc) + 1
+        steps = steps + 1
+        End If
+        Case "l"
+        If xc - 1 < 1 Then
+        ob = True
+        Exit Do
+        End If
+        If grid(xc - 1, yc) = "#" Then
+        dir = "u"
+        Else
+        xc = xc - 1
+        visits(xc, yc) = visits(xc, yc) + 1
+        steps = steps + 1
+        End If
+        Case "r"
+        If xc + 1 > gridl Then
+        ob = True
+        Exit Do
+        End If
+        If grid(xc + 1, yc) = "#" Then
+        dir = "d"
+        Else
+        xc = xc + 1
+        visits(xc, yc) = visits(xc, yc) + 1
+        steps = steps + 1
+        End If
+    End Select
+'Debug.Print xc, yc
+Loop
+
+visited = 0
+maxv = 0
+For y = 1 To gridh
+    For x = 1 To gridl
+    If visits(x, y) > 0 Then
+    visited = visited + 1
+    Range("C" & visited) = x
+    Range("D" & visited) = y
+    End If
+    Next x
+Next y
+
+Debug.Print visited
+
+End Sub
+Sub AOC2024D06P02SMARTER()
+
+Dim grid() As Variant
+Dim visits() As Variant
+Dim xc As Integer
+Dim yc As Integer
+Dim visited As Long
+Dim dir As String
+Dim basedir As String
+Dim steps As Long
+Dim ob As Boolean
+Dim isloop As Boolean
+Dim loopcount As Integer
+gridh = WorksheetFunction.CountA(Range("A:A"))
+gridl = Len(Range("A1"))
+ReDim grid(gridl, gridh)
+Dim poscount As Long
+Dim pstring As String
+ReDim visits(gridl, gridh, 2)
+Dim beenthere() As Variant
+
+p1v = WorksheetFunction.CountA(Range("C:C"))
+ReDim Preserve beenthere(p1v, 1)
+
+For vc = 1 To p1v
+beenthere(vc, 0) = Range("C" & vc)
+beenthere(vc, 1) = Range("D" & vc)
+Next vc
+
+For y = 1 To gridh
+For x = 1 To gridl
+grid(x, y) = Mid(Range("A" & y), x, 1)
+visits(x, y, 0) = 0
+visits(x, y, 1) = ""
+visits(x, y, 2) = ""
+'Debug.Print grid(x, y)
+If grid(x, y) <> "." And grid(x, y) <> "#" Then
+sx = x
+sy = y
+    Select Case grid(x, y)
+    Case "^"
+    basedir = "u"
+    Case "v"
+    basedir = "d"
+    Case "<"
+    basedir = "l"
+    Case ">"
+    basedir = "r"
+    End Select
+End If
+Next x
+Next y
+
+For vcheck = 1 To p1v
+xloop = beenthere(vcheck, 0)
+yloop = beenthere(vcheck, 1)
+ogridvalue = grid(xloop, yloop)
+grid(xloop, yloop) = "#"
+If xloop = sx And yloop = sy Then
+grid(xloop, yloop) = ogridvalue
+End If
+ob = False
+xc = sx
+yc = sy
+dir = basedir
+
+Do Until ob = True
+scount = scount + 1
+    ob = False
+        Select Case dir
+            Case "u"
+            If yc - 1 < 1 Then
+            ob = True
+            Exit Do
+            End If
+            If grid(xc, yc - 1) = "#" Then
+            dir = "r"
+            Else
+            yc = yc - 1
+            End If
+            Case "d"
+            If yc + 1 > gridh Then
+            ob = True
+            Exit Do
+            End If
+            If grid(xc, yc + 1) = "#" Then
+            dir = "l"
+            Else
+            yc = yc + 1
+            End If
+            Case "l"
+            If xc - 1 < 1 Then
+            ob = True
+            Exit Do
+            End If
+            If grid(xc - 1, yc) = "#" Then
+            dir = "u"
+            Else
+            xc = xc - 1
+            End If
+            Case "r"
+            If xc + 1 > gridl Then
+            ob = True
+            Exit Do
+            End If
+            If grid(xc + 1, yc) = "#" Then
+            dir = "d"
+            Else
+            xc = xc + 1
+            End If
+        End Select
+        
+        If visits(xc, yc, 0) > 1 And InStr(1, visits(xc, yc, 1), dir) > 0 And visits(xc, yc, 2) = xloop & "," & yloop Then
+        loopcount = loopcount + 1
+        'Debug.Print xloop, yloop
+        Exit Do
+        End If
+        
+        If visits(xc, yc, 2) <> xloop & "," & yloop Then
+        visits(xc, yc, 0) = 1
+        visits(xc, yc, 1) = dir
+        visits(xc, yc, 2) = xloop & "," & yloop
+        Else
+        visits(xc, yc, 0) = visits(xc, yc, 0) + 1
+        visits(xc, yc, 1) = visits(xc, yc, 1) & "," & dir
+        End If
+    Loop
+scount = 0
+grid(xloop, yloop) = ogridvalue
+Next vcheck
+
+Debug.Print loopcount
+
+End Sub
