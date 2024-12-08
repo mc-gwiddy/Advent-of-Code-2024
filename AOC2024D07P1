@@ -1,0 +1,135 @@
+Public Function evalops(olist As String, nums As String) As LongLong
+
+evalops = Split(nums, " ")(0)
+For opl = 1 To Len(olist)
+    nv = Split(nums, " ")(opl)
+    oper = Mid(olist, opl, 1)
+    Select Case oper
+    Case "+"
+    evalops = evalops + nv
+    Case "x"
+    evalops = evalops * nv
+    Case Else
+    evalops = evalops & nv
+    End Select
+Next opl
+
+'Debug.Print evalops
+
+End Function
+
+Public Function permops(v As String, ops As Integer, t As LongLong) As Boolean
+
+Dim perm() As Variant
+Dim permt() As Variant
+Dim num() As Variant
+Dim opst() As Variant
+Dim sumv As LongLong
+Dim basep As String
+Dim newp As String
+
+ReDim opst(3)
+opst(1) = "+"
+opst(2) = "x"
+opst(3) = "|"
+
+n = Len(v) - Len(Replace(v, " ", ""))
+perml = ops ^ n
+ReDim perm(perml, 2)
+ReDim permt(perml)
+
+hasone = False
+For onetest = 0 To n
+If Split(v, " ")(onetest) = "1" Then
+hasone = True
+End If
+Next onetest
+
+pcount = 1
+basep = WorksheetFunction.Rept(opst(1), n)
+permt(1) = basep
+perm(1, 1) = pcount
+testv = evalops(basep, v)
+Select Case testv
+Case t
+permops = True
+Exit Function
+Case Is > t 'base greater than target
+perm(1, 2) = 1
+Case Else
+perm(1, 2) = 0 'base not greater than target
+'Debug.Print permops
+End Select
+
+doloopcount = 1
+Do Until pcount = perml Or permops = True
+permops = False
+    curp = permt(doloopcount)
+    curpi = perm(doloopcount, 1)
+        For place = 1 To n
+        old = Mid(curp, place, 1)
+            For op = 2 To ops
+            newop = opst(op)
+            If newop <> old Then
+                newp = Left(curp, place - 1) & newop & Right(curp, n - place)
+                If perm(curpi, 2) = 0 Or hasone = True Then
+                calc = evalops(newp, v)
+                Else
+                calc = t + 1
+                End If
+                For addp = 1 To pcount
+                isnew = True
+                If newp = permt(addp) Then
+                isnew = False
+                Exit For
+                End If
+                Next addp
+                If isnew = True Then
+                pcount = pcount + 1
+                permt(pcount) = newp
+                perm(pcount, 1) = curpi
+                    Select Case calc
+                    Case t
+                    permops = True
+                    Exit Function
+                    Case Is > t
+                    perm(pcount, 2) = 1
+                    Case Else
+                    perm(pcount, 2) = 0
+                    End Select
+                End If
+            End If
+            Next op
+        Next place
+    doloopcount = doloopcount + 1
+Loop
+
+End Function
+Sub AOC2024D07P1()
+
+Dim targetv As LongLong
+Dim csum As LongLong
+Dim c As String
+
+lcount = WorksheetFunction.CountA(Range("A:A"))
+csum = 0
+For l = 1 To lcount
+lv = Range("A" & l)
+tget = Split(lv, ":")(0)
+targetv = tget * 1
+c = Split(lv, ": ")(1)
+ccount = Len(c) - Len(Replace(c, " ", "")) + 1
+ocount = ccount - 1
+
+valid = permops(c, 2, targetv)
+If valid = True Then
+csum = csum + targetv
+End If
+
+Range("D" & l) = valid
+
+Next l
+
+Debug.Print csum
+
+End Sub
