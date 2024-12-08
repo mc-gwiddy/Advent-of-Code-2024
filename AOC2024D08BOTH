@@ -1,0 +1,174 @@
+Sub AOC2024D08P01()
+
+gridh = WorksheetFunction.CountA(Range("A:A"))
+gridl = Len(Range("A1"))
+
+Dim grid() As Variant
+Dim nodes() As Variant
+Dim antigrid() As Variant
+Dim nodecount As Long
+Dim anticount As Long
+
+ReDim grid(gridl, gridh)
+ReDim nodes(gridl * gridh, 2)
+ReDim antigrid(gridl, gridh)
+
+anticount = 0
+
+For y = 1 To gridl
+    For x = 1 To gridl
+    gv = Mid(Range("A" & gridh + 1 - y), x, 1)
+    grid(x, y) = gv
+    antigrid(x, y) = gv
+    If gv <> "." Then
+    nodecount = nodecount + 1
+    nodes(nodecount, 0) = Asc(gv)
+    nodes(nodecount, 1) = x
+    nodes(nodecount, 2) = y
+    End If
+    Next x
+Next y
+
+For n1 = 1 To nodecount
+    nchar = nodes(n1, 0)
+    For n2 = 1 To nodecount
+    If nodes(n2, 0) = nchar And n2 <> n1 Then
+        n1x = nodes(n1, 1)
+        n1y = nodes(n1, 2)
+        n2x = nodes(n2, 1)
+        n2y = nodes(n2, 2)
+        slopey = n2y - n1y
+        slopex = n2x - n1x
+            Select Case n2y - n1y
+            Case Is > 0
+            movey = Abs(slopey)
+            Case Is < 0
+            movey = -1 * slopey
+            Case Else
+            movey = 0
+            End Select
+            Select Case n2x - n1x
+            Case Is > 0
+            movey = Abs(slopex)
+            Case Is < 0
+            movey = -1 * slopex
+            Case Else
+            movey = 0
+            End Select
+        axcheck = n1x + 2 * slopex
+        aycheck = n1y + 2 * slopey
+            If axcheck <= gridl And axcheck > 0 And aycheck <= gridh And aycheck > 0 Then
+            antidupe = False
+                For a = 1 To anticount
+                    If antigrid(axcheck, aycheck) = "#" Then
+                    antidupe = True
+                    Exit For
+                    End If
+                Next a
+            If antidupe = False Then
+            anticount = anticount + 1
+            antigrid(n1x + 2 * slopex, n1y + 2 * slopey) = "#"
+            End If
+        End If
+    End If
+    Next n2
+Next n1
+
+Debug.Print anticount
+
+For y = 1 To gridh
+    For x = 1 To gridl
+    Cells(gridh + 1 - y, x + 1) = antigrid(x, y)
+    Next x
+Next y
+    
+End Sub
+Sub AOC2024D08P02()
+
+gridh = WorksheetFunction.CountA(Range("A:A"))
+gridl = Len(Range("A1"))
+
+Dim grid() As Variant
+Dim nodes() As Variant
+Dim antigrid() As Variant
+Dim nodecount As Long
+Dim anticount As Long
+
+ReDim grid(gridl, gridh)
+ReDim nodes(gridl * gridh, 2)
+ReDim antigrid(gridl, gridh)
+
+anticount = 0
+
+For y = 1 To gridl
+    For x = 1 To gridl
+    gv = Mid(Range("A" & gridh + 1 - y), x, 1)
+    grid(x, y) = gv
+    antigrid(x, y) = gv
+    If gv <> "." Then
+    nodecount = nodecount + 1
+    nodes(nodecount, 0) = Asc(gv)
+    nodes(nodecount, 1) = x
+    nodes(nodecount, 2) = y
+    End If
+    Next x
+Next y
+
+For n1 = 1 To nodecount
+    nchar = nodes(n1, 0)
+    For n2 = 1 To nodecount
+    If nodes(n2, 0) = nchar And n2 <> n1 Then
+        n1x = nodes(n1, 1)
+        n1y = nodes(n1, 2)
+        n2x = nodes(n2, 1)
+        n2y = nodes(n2, 2)
+        slopey = n2y - n1y
+        slopex = n2x - n1x
+        If antigrid(n1x, n1y) <> "#" Then
+        anticount = anticount + 1
+        antigrid(n1x, n1y) = "#"
+        End If
+        If antigrid(n2x, n2y) <> "#" Then
+        anticount = anticount + 1
+        antigrid(n2x, n2y) = "#"
+        End If
+            Select Case n2y - n1y
+            Case Is > 0
+            movey = Abs(slopey)
+            Case Is < 0
+            movey = -1 * Abs(slopey)
+            Case Else
+            movey = 0
+            End Select
+            Select Case n2x - n1x
+            Case Is > 0
+            movex = Abs(slopex)
+            Case Else
+            movex = -1 * Abs(slopex)
+            End Select
+    curx = n1x
+    cury = n1y
+        Do Until curx > gridl Or curx < 1 Or cury > gridh Or cury < 1
+        curx = curx + movex
+        cury = cury + movey
+        If curx > gridl Or curx < 1 Or cury > gridh Or cury < 1 Then
+        Exit Do
+        End If
+            If antigrid(curx, cury) <> "#" Then
+            anticount = anticount + 1
+            antigrid(curx, cury) = "#"
+            End If
+        Loop
+    End If
+    Next n2
+Next n1
+
+Debug.Print anticount
+
+For y = 1 To gridh
+    For x = 1 To gridl
+    Cells(gridh + 1 - y, x + 1) = antigrid(x, y)
+    Next x
+Next y
+    
+End Sub
