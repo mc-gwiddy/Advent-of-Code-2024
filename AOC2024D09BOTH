@@ -1,0 +1,213 @@
+Sub AOC2024D09P01()
+
+Dim i As String
+Dim ilen As Integer
+Dim blocks As Long
+Dim checksum As LongLong
+
+i = Range("A1")
+ilen = Len(i)
+
+For c = 1 To ilen
+blocks = blocks + CInt(Mid(i, c, 1))
+Next c
+blocks = blocks - 1
+
+Dim blist() As Variant
+ReDim blist(blocks)
+
+fid = -1
+bpos = -1
+For c = 1 To ilen
+    If c Mod 2 = 1 Then
+    fid = fid + 1
+        Select Case c
+        Case ilen
+        fblocks = CInt(Mid(i, c, 1))
+        eblocks = 0
+        Case Else
+        bstring = Mid(i, c, 2)
+        fblocks = CInt(Left(bstring, 1))
+        eblocks = CInt(Right(bstring, 1))
+        End Select
+        For badd = 1 To fblocks
+        bpos = bpos + 1
+        blist(bpos) = fid
+        'dstring = dstring & blist(bpos)
+        Next badd
+        If eblocks > 0 Then
+        For eadd = 1 To eblocks
+        bpos = bpos + 1
+        blist(bpos) = "."
+        'dstring = dstring & blist(bpos)
+        Next eadd
+        End If
+    End If
+Next c
+
+'Debug.Print dstring
+
+compacted = False
+
+blankmini = blocks
+nummaxi = 0
+bmi = 0
+nmi = blocks
+Do Until compacted = True
+loopcount = loopcount + 1
+compacted = False
+
+    For b = 0 To blocks
+    p = blocks - b
+    pfound = 0
+        If blist(p) <> "." Then
+        moveid = blist(p)
+        blist(p) = "."
+        'dstring = Left(dstring, p) & "." & Right(dstring, Len(dstring) - p - 1)
+            newpos = -1
+            psearch = pfound
+            Do Until newpos <> -1
+            psearch = psearch + 1
+            If blist(psearch) = "." Then
+            blist(psearch) = moveid
+            newpos = psearch
+            'dstring = Left(dstring, psearch) & moveid & Right(dstring, Len(dstring) - psearch - 1)
+            'Debug.Print dstring
+            End If
+            Loop
+            
+            For btest = bmi To nmi
+            
+            If blist(btest) = "." And btest < blankmini Then
+            blankmini = btest
+            End If
+            If blist(btest) <> "." And btest > nummaxi Then
+            nummaxi = btest
+            End If
+            Next btest
+            bmi = blankmini
+            nmi = nummaxi
+            If blankmini > nummaxi Then
+            compressed = True
+            Exit Do
+            End If
+        blankmini = blocks
+        nummaxi = 0
+        End If
+    'Debug.Print bmi, nmi
+    Next b
+
+Loop
+
+checksum = 0
+
+For b = 0 To blocks
+If blist(b) <> "." Then
+checksum = checksum + b * blist(b)
+End If
+Next b
+
+Debug.Print checksum
+End Sub
+
+
+  Sub AOC2024D09P02()
+  
+  Dim i As String
+  Dim ilen As Integer
+  Dim blocks As Long
+  Dim checksum As LongLong
+  Dim frange() As Variant
+  Dim t As Long
+  
+  i = Range("A1")
+  ilen = Len(i)
+  
+  For c = 1 To ilen
+  blocks = blocks + CInt(Mid(i, c, 1))
+  Next c
+  blocks = blocks - 1
+  
+  Dim blist() As Variant
+  ReDim blist(blocks)
+  ReDim frange(blocks, 2) 'file block start and finish
+  ReDim blrange(blocks, 3) 'blank block start and finish
+  fid = -1
+  bpos = -1
+  blid = -1
+  For c = 1 To ilen
+      If c Mod 2 = 1 Then
+      fid = fid + 1
+          Select Case c
+          Case ilen
+          fblocks = CInt(Mid(i, c, 1))
+          eblocks = 0
+          Case Else
+          bstring = Mid(i, c, 2)
+          fblocks = CInt(Left(bstring, 1))
+          eblocks = CInt(Right(bstring, 1))
+          End Select
+          frange(fid, 0) = bpos + 1 'file block start
+          frange(fid, 1) = bpos + fblocks 'file block end
+          frange(fid, 2) = frange(fid, 1) - frange(fid, 0) + 1 '# of blocks
+          If eblocks > 0 Then
+          blid = blid + 1
+          blrange(blid, 0) = frange(fid, 1) + 1 'empty block start
+          blrange(blid, 1) = frange(fid, 1) + eblocks 'empty block end
+          blrange(blid, 2) = blrange(blid, 1) - blrange(blid, 0) + 1 '# of blocks
+          blrange(blid, 3) = 0 'blanks filled
+          End If
+          For badd = 1 To fblocks
+          bpos = bpos + 1
+          blist(bpos) = fid
+          'dstring = dstring & blist(bpos)
+          'Debug.Print dstring
+          Next badd
+          If eblocks > 0 Then
+          For eadd = 1 To eblocks
+          bpos = bpos + 1
+          blist(bpos) = "."
+          'dstring = dstring & blist(bpos)
+          Next eadd
+          End If
+      End If
+  Next c
+  
+  'Debug.Print dstring
+  
+  For f = 0 To fid
+  dstring = ""
+  fi = fid - f
+  flen = frange(fi, 2)
+      For e = 0 To blid
+      If blrange(e, 0) < frange(fi, 0) And flen <= blrange(e, 2) Then
+              For fp = 0 To flen - 1
+              blist(frange(fi, 0) + fp) = "."
+              blist(blrange(e, 0) + fp) = fi
+              Next fp
+              blrange(e, 0) = blrange(e, 0) + flen
+              blrange(e, 2) = blrange(e, 2) - flen
+      Exit For
+      End If
+      Next e
+   'For t = 0 To blocks
+   'dstring = dstring & blist(t)
+   'Next t
+   'Debug.Print dstring
+  Next f
+  
+  checksum = 0
+  'dstring = ""
+  For b = 0 To blocks
+  'dstring = dstring & blist(b) & ","
+  'Debug.Print dstring
+  If blist(b) <> "." Then
+  checksum = checksum + b * blist(b)
+  'Debug.Print checksum
+  End If
+  Next b
+  
+  'Debug.Print dstring
+  Debug.Print checksum
+  
+  End Sub
