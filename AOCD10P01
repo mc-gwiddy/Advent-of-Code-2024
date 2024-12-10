@@ -1,0 +1,168 @@
+Sub AOC2024D10P01()
+
+gridl = Len(Range("a1"))
+gridh = WorksheetFunction.CountA(Range("a:a"))
+
+Dim grid() As Variant
+Dim zero() As Variant
+Dim paths() As Variant
+Dim dlist() As Variant
+Dim trailheads As Long
+
+ReDim grid(gridl, gridh)
+ReDim zero(gridl * gridh, 2)
+ReDim paths(1000000, 4)
+ReDim dlist(3)
+dlist(0) = "u"
+dlist(1) = "d"
+dlist(2) = "r"
+dlist(3) = "l"
+
+zcount = 0
+For y = 1 To gridh
+    For x = 1 To gridl
+    v = Mid(Range("a" & gridh + 1 - y), x, 1)
+    If v <> "." Then
+    grid(x, y) = CInt(v)
+    Else
+    grid(x, y) = -1
+    End If
+    If grid(x, y) = 0 Then
+    zcount = zcount + 1
+    zero(zcount, 0) = x
+    zero(zcount, 1) = y
+    zero(zcount, 2) = "_" 'trailhead list
+    End If
+    Next x
+Next y
+
+For Z = 1 To zcount
+curx = zero(Z, 0)
+cury = zero(Z, 1)
+curv = CInt(grid(curx, cury))
+curp = 1
+pleft = 1
+pcount = 1
+paths(pcount, 0) = Z 'path start zero(index)
+paths(pcount, 1) = curx & "," & cury 'path latest coord
+paths(pcount, 2) = 0 'path dir
+paths(pcount, 3) = curv 'path current value
+paths(pcount, 4) = 0 'path is trailhead
+    Do Until pleft = 0
+    curx = CInt(Split(paths(curp, 1), ",")(0))
+    cury = CInt(Split(paths(curp, 1), ",")(1))
+    curv = paths(curp, 3)
+    curd = paths(pcount, 2)
+    padd = -1
+    If curv = 9 Then
+    'trailheads = trailheads + 1
+        If InStr(zero(Z, 2), "_" & curx & "," & cury & "_") = 0 Then
+        zero(Z, 2) = zero(Z, 2) & curx & "," & cury & "_"
+        End If
+    pleft = pleft - 1
+    'Debug.Print Z, curp, trailheads, curx & ","; cury
+    'Debug.Print pcount, pleft
+    curp = curp + 1
+    End If
+        Do Until padd = 0 Or curv = 9
+        padd = 0
+        curx = CInt(Split(paths(curp, 1), ",")(0))
+        cury = CInt(Split(paths(curp, 1), ",")(1))
+        curv = paths(curp, 3)
+            For d = 0 To 3
+                Select Case d
+                Case 0
+                If cury + 1 <= gridh Then
+                nextv = grid(curx, cury + 1)
+                nextc = curx & "," & cury + 1
+                de = 0
+                Else
+                de = 1
+                End If
+                Case 1
+                If cury - 1 > 0 Then
+                nextv = grid(curx, cury - 1)
+                nextc = curx & "," & cury - 1
+                de = 0
+                Else
+                de = 1
+                End If
+                Case 2
+                If curx + 1 <= gridh Then
+                nextv = CInt(grid(curx + 1, cury))
+                nextc = curx + 1 & "," & cury
+                de = 0
+                Else
+                de = 1
+                End If
+                Case 3
+                If curx - 1 > 0 Then
+                nextv = grid(curx - 1, cury)
+                nextc = curx - 1 & "," & cury
+                de = 0
+                Else
+                de = 1
+                End If
+                End Select
+            If nextv = curv + 1 And de = 0 Then
+                If d <> curd Then
+                pcount = pcount + 1
+                pleft = pleft + 1
+                paths(pcount, 0) = Z
+                paths(pcount, 1) = nextc
+                paths(pcount, 2) = d
+                paths(pcount, 3) = nextv
+                'Debug.Print pcount, nextc
+                Else
+                Select Case nextv
+                Case 9
+                paths(curp, 0) = Z
+                paths(curp, 1) = nextc
+                paths(curp, 2) = d
+                paths(curp, 3) = nextv
+                paths(curp, 4) = 1
+                    If InStr(zero(Z, 2), "_" & nextc & "_") = 0 Then
+                    zero(Z, 2) = zero(Z, 2) & nextc & "_"
+                    End If
+                'trailheads = trailheads + 1
+                'Debug.Print Z, curp, trailheads, curx & ","; cury
+                'Debug.Print pcount, pleft
+                Case Else
+                paths(curp, 0) = Z
+                paths(curp, 1) = nextc
+                paths(curp, 2) = d
+                paths(curp, 3) = nextv
+                padd = padd + 1
+                'Debug.Print curp, nextc, nextv
+                End Select
+                End If
+            End If
+            Next d
+        If padd = 0 Then
+            If nextv <> 9 Then
+            paths(curp, 4) = 0
+            End If
+        pleft = pleft - 1
+        'Debug.Print pcount, pleft
+        curp = curp + 1
+        End If
+        Loop
+    Loop
+'For p = 1 To pcount
+'If paths(p, 4) = 1 Then
+'zero(Z, 2) = zero(Z, 2) + 1
+'End If
+'Next p
+'Debug.Print zero(Z, 2)
+Next Z
+
+tscore = 0
+For zsum = 1 To zcount
+zscore = Len(zero(zsum, 2)) - (Len(Replace(zero(zsum, 2), "_", ""))) - 1
+tscore = tscore + zscore
+Next zsum
+
+Debug.Print tscore
+
+End Sub
+
