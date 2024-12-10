@@ -1,4 +1,4 @@
-Sub AOC2024D10P01()
+Sub AOC2024D10()
 
 gridl = Len(Range("a1"))
 gridh = WorksheetFunction.CountA(Range("a:a"))
@@ -55,7 +55,7 @@ paths(pcount, 4) = 0 'path is trailhead
     curd = paths(pcount, 2)
     padd = -1
     If curv = 9 Then
-    'trailheads = trailheads + 1
+    trailheads = trailheads + 1
         If InStr(zero(Z, 2), "_" & curx & "," & cury & "_") = 0 Then
         zero(Z, 2) = zero(Z, 2) & curx & "," & cury & "_"
         End If
@@ -124,7 +124,7 @@ paths(pcount, 4) = 0 'path is trailhead
                     If InStr(zero(Z, 2), "_" & nextc & "_") = 0 Then
                     zero(Z, 2) = zero(Z, 2) & nextc & "_"
                     End If
-                'trailheads = trailheads + 1
+                trailheads = trailheads + 1
                 'Debug.Print Z, curp, trailheads, curx & ","; cury
                 'Debug.Print pcount, pleft
                 Case Else
@@ -161,8 +161,9 @@ For zsum = 1 To zcount
 zscore = Len(zero(zsum, 2)) - (Len(Replace(zero(zsum, 2), "_", ""))) - 1
 tscore = tscore + zscore
 Next zsum
-
-Debug.Print tscore
+part1 = tscore
+part2 = trailheads
+Debug.Print part1
+Debug.Print part2
 
 End Sub
-
