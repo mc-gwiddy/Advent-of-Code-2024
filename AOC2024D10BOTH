@@ -60,8 +60,6 @@ paths(pcount, 4) = 0 'path is trailhead
         zero(Z, 2) = zero(Z, 2) & curx & "," & cury & "_"
         End If
     pleft = pleft - 1
-    'Debug.Print Z, curp, trailheads, curx & ","; cury
-    'Debug.Print pcount, pleft
     curp = curp + 1
     End If
         Do Until padd = 0 Or curv = 9
@@ -112,7 +110,6 @@ paths(pcount, 4) = 0 'path is trailhead
                 paths(pcount, 1) = nextc
                 paths(pcount, 2) = d
                 paths(pcount, 3) = nextv
-                'Debug.Print pcount, nextc
                 Else
                 Select Case nextv
                 Case 9
@@ -125,15 +122,12 @@ paths(pcount, 4) = 0 'path is trailhead
                     zero(Z, 2) = zero(Z, 2) & nextc & "_"
                     End If
                 trailheads = trailheads + 1
-                'Debug.Print Z, curp, trailheads, curx & ","; cury
-                'Debug.Print pcount, pleft
                 Case Else
                 paths(curp, 0) = Z
                 paths(curp, 1) = nextc
                 paths(curp, 2) = d
                 paths(curp, 3) = nextv
                 padd = padd + 1
-                'Debug.Print curp, nextc, nextv
                 End Select
                 End If
             End If
@@ -143,17 +137,10 @@ paths(pcount, 4) = 0 'path is trailhead
             paths(curp, 4) = 0
             End If
         pleft = pleft - 1
-        'Debug.Print pcount, pleft
         curp = curp + 1
         End If
         Loop
     Loop
-'For p = 1 To pcount
-'If paths(p, 4) = 1 Then
-'zero(Z, 2) = zero(Z, 2) + 1
-'End If
-'Next p
-'Debug.Print zero(Z, 2)
 Next Z
 
 tscore = 0
