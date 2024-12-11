@@ -1,0 +1,63 @@
+Sub AOC2024D11P01()
+
+Dim sv As LongLong
+Dim scount As Long
+Dim stotal As Long
+Dim ostones() As LongLong
+Dim bstones() As LongLong
+Dim nstones() As LongLong
+Dim ncount As Long
+
+i = Range("a1")
+scount = Len(i) - Len(Replace(i, " ", "")) + 1
+ReDim ostones(scount)
+ReDim bstones(1000000)
+ReDim nstones(1000000)
+
+blinktarg = 3
+stotal = 0
+
+For s = 1 To scount
+blinks = 0
+snum = Split(i)(s - 1)
+ostones(1) = snum
+bstones(1) = snum
+nstones(1) = snum
+ncount = 1
+        Do Until blinks = blinktarg
+        blinks = blinks + 1
+        added = 0
+        bstring = ""
+            For bs = 1 To ncount
+            sv = bstones(bs)
+            added = added + 1
+            Select Case sv
+            Case 0
+            nstones(added) = 1
+            Case Else
+            slen = Len(Format(sv, "#"))
+                If slen Mod 2 = 0 Then
+                nstones(added) = Left(sv, slen / 2) * 1
+                added = added + 1
+                nstones(added) = Right(sv, slen / 2) * 1
+                Else
+                sv = sv * 2024
+                nstones(added) = sv
+                End If
+            End Select
+            Next bs
+        For n = 1 To added
+        bstones(n) = nstones(n)
+        bstring = bstring & " " & nstones(n)
+        Next n
+        ncount = added
+        'Debug.Print added, bstring
+        Loop
+
+stotal = stotal + added
+Next s
+
+Debug.Print stotal
+        
+    
+End Sub
