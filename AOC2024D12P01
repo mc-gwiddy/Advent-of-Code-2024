@@ -1,0 +1,169 @@
+Sub AOC2024D12P01()
+
+gridh = WorksheetFunction.CountA(Range("a:a"))
+gridl = Len(Range("a1"))
+Dim grid() As Variant
+Dim region() As Variant
+Dim x2 As Integer
+Dim y2 As Integer
+
+ReDim grid(gridl, gridh, 2)
+ReDim region(gridl * gridh, 3)
+
+For y = 1 To gridh
+    For x = 1 To gridl
+    gv = Mid(Range("a" & gridh - y + 1), x, 1)
+    grid(x, y, 0) = gv
+    grid(x, y, 1) = 0
+    grid(x, y, 2) = 4
+    Next x
+Next y
+
+For y = 1 To gridh
+    For x = 1 To gridl
+    If y Mod 2 = 0 Then
+    gx = gridl - x + 1
+    gy = y
+    gv = grid(gx, gy, 0)
+    Else
+    gx = x
+    gy = y
+    gv = grid(x, y, 0)
+    End If
+    ncount = 0
+        For d = 0 To 3
+        Select Case d
+        Case 0 'up
+            If gy + 1 <= gridh Then
+                nx = gx
+                ny = gy + 1
+                If grid(gx, gy + 1, 0) = gv Then
+                grid(gx, gy, 2) = grid(gx, gy, 2) - 1
+                Select Case grid(nx, ny, 1)
+                Case Is > 0
+                grid(gx, gy, 1) = grid(gx, gy + 1, 1)
+                End Select
+                End If
+            End If
+        Case 1 'down
+            If gy - 1 > 0 Then
+                nx = gx
+                ny = gy - 1
+                If grid(gx, gy - 1, 0) = gv Then
+                grid(gx, gy, 2) = grid(gx, gy, 2) - 1
+                Select Case grid(nx, ny, 1)
+                Case Is > 0
+                grid(gx, gy, 1) = grid(gx, gy - 1, 1)
+                End Select
+                End If
+            End If
+        Case 2 'right
+            If gx + 1 <= gridl Then
+                nx = gx + 1
+                ny = gy
+                If grid(gx + 1, gy, 0) = gv Then
+                grid(gx, gy, 2) = grid(gx, gy, 2) - 1
+                Select Case grid(nx, ny, 1)
+                Case Is > 0
+                grid(gx, gy, 1) = grid(gx + 1, gy, 1)
+                End Select
+                End If
+            End If
+        Case 3 'left
+            If gx - 1 > 0 Then
+                nx = gx - 1
+                ny = gy
+                If grid(gx - 1, gy, 0) = gv Then
+                grid(gx, gy, 2) = grid(gx, gy, 2) - 1
+                Select Case grid(nx, ny, 1)
+                Case Is > 0
+                grid(gx, gy, 1) = grid(gx - 1, gy, 1)
+                End Select
+                End If
+            End If
+        End Select
+        If nx > 0 And nx <= gridl And ny > 0 And ny <= gridh Then
+            If grid(nx, ny, 1) <> 0 And grid(nx, ny, 0) = grid(gx, gy, 0) Then
+            ncount = ncount + 1
+            End If
+        End If
+        Next d
+    If ncount = 0 Then
+        rcount = rcount + 1
+        grid(gx, gy, 1) = rcount
+        region(rcount, 0) = rcount 'region number
+        region(rcount, 1) = 0 'area
+        region(rcount, 2) = 0 'perimiter
+        region(rcount, 3) = gv 'crop
+    End If
+    Next x
+Next y
+
+mismatch = True
+Do Until mismatch = False
+mismatch = False
+For y = 1 To gridh
+    For x = 1 To gridl
+    newr = grid(x, y, 1)
+    oldr = rcount + 1
+        If x + 1 <= gridl Then
+            If grid(x, y, 0) = grid(x + 1, y, 0) And grid(x, y, 1) <> grid(x + 1, y, 1) Then
+            oldr = grid(x + 1, y, 1)
+            newr = WorksheetFunction.Min(newr, oldr)
+            mismatch = True
+            End If
+        End If
+        If x - 1 > 0 Then
+            If grid(x, y, 0) = grid(x - 1, y, 0) And grid(x, y, 1) <> grid(x - 1, y, 1) Then
+            oldr = grid(x - 1, y, 1)
+            newr = WorksheetFunction.Min(newr, oldr)
+            mismatch = True
+            End If
+        End If
+        If y + 1 <= gridh Then
+            If grid(x, y, 0) = grid(x, y + 1, 0) And grid(x, y, 1) <> grid(x, y + 1, 1) Then
+            oldr = grid(x, y + 1, 1)
+            newr = WorksheetFunction.Min(newr, oldr)
+            mismatch = True
+            End If
+        End If
+        If y - 1 > 0 Then
+            If grid(x, y, 0) = grid(x, y - 1, 0) And grid(x, y, 1) <> grid(x, y - 1, 1) Then
+            oldr = grid(x, y - 1, 1)
+            newr = WorksheetFunction.Min(newr, oldr)
+            mismatch = True
+            End If
+        End If
+        If newr <> oldr Then
+            For y2 = 1 To gridh
+                For x2 = 1 To gridl
+                If grid(x2, y2, 1) = oldr Then
+                grid(x2, y2, 1) = newr
+                End If
+                Next x2
+            Next y2
+        End If
+    Next x
+Next y
+Loop
+
+For y = 1 To gridh
+    For x = 1 To gridl
+        For r = 1 To rcount
+            If grid(x, y, 1) = region(r, 0) Then
+            region(r, 1) = region(r, 1) + 1
+            region(r, 2) = region(r, 2) + grid(x, y, 2)
+            End If
+        Next r
+    Next x
+Next y
+
+Price = 0
+For r = 1 To rcount
+rprice = region(r, 1) * region(r, 2)
+tprice = tprice + rprice
+'Debug.Print region(r, 0), region(r, 3), region(r, 1), region(r, 2), rprice
+Next r
+
+Debug.Print tprice
+End Sub
