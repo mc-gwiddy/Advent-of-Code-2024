@@ -1,0 +1,72 @@
+Sub AOC2024D13P01()
+
+Dim machine() As Variant
+mcount = WorksheetFunction.CountA(Range("a:a")) / 3
+
+ReDim machine(mcount, 6)
+
+For m = 0 To mcount - 1
+
+a = Range("a" & 1 + m * 4)
+b = Range("a" & 2 + m * 4)
+t = Range("a" & 3 + m * 4)
+
+machine(m + 1, 1) = CLng(Split(Split(Split(a, ": ")(1), ", ")(0), "+")(1)) 'button a xplus
+machine(m + 1, 2) = CLng(Split(Split(Split(a, ": ")(1), ", ")(1), "+")(1)) 'button a yplus
+machine(m + 1, 3) = CLng(Split(Split(Split(b, ": ")(1), ", ")(0), "+")(1)) 'button b xplus
+machine(m + 1, 4) = CLng(Split(Split(Split(b, ": ")(1), ", ")(1), "+")(1)) 'button b yplus
+machine(m + 1, 5) = CLng(Split(Split(Split(t, ": ")(1), ", ")(0), "=")(1)) 'prize xcor
+machine(m + 1, 6) = CLng(Split(Split(Split(t, ": ")(1), ", ")(1), "=")(1)) 'prize ycor
+    'For x = 1 To 3
+    'Debug.Print m + 1, machine(m + 1, (x - 1) * 2 + 1), machine(m + 1, (x - 1) * 2 + 2)
+    'Next x
+Next m
+
+ans = 0
+For m = 1 To mcount
+    mtoken = 401
+    ma = -1
+    mb = -2
+    For apress = 1 To 100
+    xplus = apress * machine(m, 1)
+    yplus = apress * machine(m, 2)
+        If xplus = machine(m, 5) And yplus = machine(m, 6) Then
+        ctoken = apress * 3 + bpress
+            If ctoken < mtoken Then
+            mtoken = ctoken
+            ma = apress
+            mb = bpress
+            End If
+        End If
+        For bpress = 1 To 100
+        xplus = bpress * machine(m, 3)
+        yplus = bpress * machine(m, 4)
+                If xplus = machine(m, 5) And yplus = machine(m, 6) Then
+                ctoken = bpress
+                    If ctoken < mtoken Then
+                    mtoken = ctoken
+                    ma = apress
+                    mb = bpress
+                    End If
+                End If
+        xplus = apress * machine(m, 1) + bpress * machine(m, 3)
+        yplus = apress * machine(m, 2) + bpress * machine(m, 4)
+                If xplus = machine(m, 5) And yplus = machine(m, 6) Then
+                ctoken = apress * 3 + bpress
+                    If ctoken < mtoken Then
+                    mtoken = ctoken
+                    ma = apress
+                    mb = bpress
+                    End If
+                End If
+        Next bpress
+    Next apress
+If mtoken < 401 Then
+'Debug.Print m, ma, mb, mtoken
+ans = ans + mtoken
+End If
+Next m
+
+Debug.Print ans
+
+End Sub
