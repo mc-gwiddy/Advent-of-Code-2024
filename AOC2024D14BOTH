@@ -101,3 +101,98 @@ Next q
 Debug.Print answer
             
 End Sub
+
+Sub AOC2024D14P2()
+
+Dim quad() As Variant
+ReDim quad(4)
+
+gridh = 103
+gridl = 101
+
+gridh = gridh - 1
+gridl = gridl - 1
+
+Dim grid() As Variant
+ReDim grid(gridl, gridh)
+For y = 0 To gridh
+    For x = 0 To gridl
+    grid(x, y) = 0
+    'Cells(y + 1, x + 2) = 0
+    Next x
+Next y
+
+Dim robot() As Variant
+
+rcount = WorksheetFunction.CountA(Range("a:a"))
+ReDim robot(rcount, 5)
+For r = 1 To rcount
+i = Range("a" & r)
+robot(r, 0) = CInt(Split(Split(Split(i, " ")(0), "=")(1), ",")(0)) 'robot startx
+robot(r, 1) = CInt(Split(Split(Split(i, " ")(0), "=")(1), ",")(1)) 'robot starty
+robot(r, 2) = CInt(Split(Split(Split(i, " ")(1), "=")(1), ",")(0)) 'robot xvel
+robot(r, 3) = CInt(Split(Split(Split(i, " ")(1), "=")(1), ",")(1)) 'robot yvel
+robot(r, 4) = robot(r, 0) 'robot curx
+robot(r, 5) = robot(r, 1) 'robot cury
+grid(robot(r, 4), robot(r, 5)) = grid(robot(r, 4), robot(r, 5)) + 1
+'Cells(robot(r, 5) + 1, robot(r, 4) + 2) = Cells(robot(r, 5) + 1, robot(r, 4) + 2) + 1
+Next r
+
+t = 0
+Overlap = True
+Do Until Overlap = False
+t = t + 1
+    For r = 1 To rcount
+    cx = robot(r, 4)
+    cy = robot(r, 5)
+    vx = robot(r, 2)
+    vy = robot(r, 3)
+    grid(cx, cy) = grid(cx, cy) - 1
+    'Cells(cy + 1, cx + 2) = Cells(cy + 1, cx + 2) - 1
+            Select Case cx + vx
+            Case Is < 0
+            cx = gridl - Abs((cx - Abs(vx))) + 1
+            Case Is > gridl
+            cx = 0 + (vx - (gridl - cx) - 1)
+            Case Else
+            cx = cx + vx
+            End Select
+            Select Case cy + vy
+            Case Is < 0
+            cy = gridh - (Abs(vy) - Abs((0 - cy)) - 1)
+            Case Is > gridh
+            cy = 0 + (Abs(vy) - Abs((gridh - cy))) - 1
+            Case Else
+            cy = cy + vy
+            End Select
+        grid(cx, cy) = grid(cx, cy) + 1
+        robot(r, 4) = cx
+        robot(r, 5) = cy
+        'Cells(cy + 1, cx + 2) = Cells(cy + 1, cx + 2) + 1
+        Next r
+Overlap = False
+For y = 0 To gridh
+    For x = 0 To gridl
+    If grid(x, y) > 1 Then
+    Overlap = True
+    Exit For
+    End If
+    'Debug.Print grid(X, Y)
+    Next x
+If Overlap = True Then
+Exit For
+End If
+Next y
+Loop
+
+Debug.Print t
+
+For y = 0 To gridh
+    For x = 0 To gridl
+    If grid(x, y) > 0 Then
+    Cells(y + 1, x + 2) = "#"
+    End If
+    Next x
+Next y
+
+End Sub
