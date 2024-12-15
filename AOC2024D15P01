@@ -1,0 +1,222 @@
+Sub AOC2024D15P01()
+
+Dim grid() As Variant
+Dim box() As Variant
+gridh = WorksheetFunction.CountIfs(Range("a:a"), "#*") - 1
+gridl = Len(Range("a1")) - 1
+
+ReDim grid(gridl, gridh, 1)
+ReDim box(gridl * gridh, 1)
+For y = 0 To gridh
+    For x = 0 To gridl
+    i = Mid(Range("a" & y + 1), x + 1, 1)
+    grid(x, y, 0) = i
+    Select Case i
+    Case "O"
+    'bcount = bcount + 1
+    'box(bcount, 0) = x
+    'box(bcount, 1) = y
+    'grid(x, y, 1) = bcount
+    Case "@"
+    rx = x
+    ry = y
+    End Select
+    'Cells(y + 1, x + 2) = i
+    Next x
+Next y
+
+moves = ""
+mlines = WorksheetFunction.CountA(Range("a:a")) - gridh - 1
+For mline = 1 To mlines
+moves = moves & Range("A" & gridh + 2 + mline)
+Next mline
+mcount = Len(moves)
+
+For m = 1 To mcount
+mv = Mid(moves, m, 1)
+'Debug.Print mv
+    Select Case mv
+    Case "^"
+    d2w = ry - 1
+        Select Case grid(rx, ry - 1, 0)
+        Case "."
+        ry = ry - 1
+        grid(rx, ry, 0) = "@"
+        grid(rx, ry + 1, 0) = "."
+        'Cells(ry + 1, rx + 2) = "@"
+        'Cells(ry + 2, rx + 2) = "."
+        Case "O"
+        mcheck = 0
+        espace = 0
+        Do Until mcheck = d2w
+        mcheck = mcheck + 1
+        If grid(rx, ry - mcheck, 0) = "." Then
+        espace = mcheck
+        Exit Do
+        End If
+        If grid(rx, ry - mcheck, 0) = "#" Then
+        Exit Do
+        End If
+        Loop
+        If espace > 0 Then
+            For e = 1 To espace - 1
+            nx = rx
+            ny = ry - (espace - e + 1)
+            grid(nx, ny, 0) = grid(nx, ny + 1, 0)
+            'Cells(ny + 1, nx + 2) = grid(nx, ny + 1, 0)
+            grid(nx, ny, 1) = grid(nx, ny + 1, 1)
+            grid(nx, ny + 1, 1) = 0
+            'box(grid(nx, ny, 1), 0) = nx
+            'box(grid(nx, ny, 1), 1) = ny
+            Next e
+        ry = ry - 1
+        grid(rx, ry, 0) = "@"
+        grid(rx, ry + 1, 0) = "."
+        'Cells(ry + 1, rx + 2) = "@"
+        'Cells(ry + 2, rx + 2) = "."
+        End If
+        End Select
+    Case "v"
+    d2w = gridh - ry - 1
+        Select Case grid(rx, ry + 1, 0)
+        Case "."
+        ry = ry + 1
+        grid(rx, ry, 0) = "@"
+        grid(rx, ry - 1, 0) = "."
+        'Cells(ry + 1, rx + 2) = "@"
+        'Cells(ry, rx + 2) = "."
+        Case "O"
+        mcheck = 0
+        espace = 0
+        Do Until mcheck = d2w
+        mcheck = mcheck + 1
+        If grid(rx, ry + mcheck, 0) = "." Then
+        espace = mcheck
+        Exit Do
+        End If
+        If grid(rx, ry + mcheck, 0) = "#" Then
+        Exit Do
+        End If
+        Loop
+        If espace > 0 Then
+            For e = 1 To espace - 1
+            nx = rx
+            ny = ry + espace - e + 1
+            grid(nx, ny, 0) = grid(nx, ny - 1, 0)
+            'Cells(ny + 1, nx + 2) = grid(nx, ny - 1, 0)
+            grid(nx, ny, 1) = grid(nx, ny - 1, 1)
+            grid(nx, ny - 1, 1) = 0
+            'box(grid(nx, ny, 1), 0) = nx
+            'box(grid(nx, ny, 1), 1) = ny
+            Next e
+        ry = ry + 1
+        grid(rx, ry, 0) = "@"
+        grid(rx, ry - 1, 0) = "."
+        'Cells(ry + 1, rx + 2) = "@"
+        'Cells(ry, rx + 2) = "."
+        End If
+        End Select
+    Case ">"
+    d2w = gridl - rx - 1
+        Select Case grid(rx + 1, ry, 0)
+        Case "."
+        rx = rx + 1
+        grid(rx, ry, 0) = "@"
+        grid(rx - 1, ry, 0) = "."
+        'Cells(ry + 1, rx + 2) = "@"
+        'Cells(ry + 1, rx + 1) = "."
+        Case "O"
+        mcheck = 0
+        espace = 0
+        Do Until mcheck = d2w
+        mcheck = mcheck + 1
+        If grid(rx + mcheck, ry, 0) = "." Then
+        espace = mcheck
+        Exit Do
+        End If
+        If grid(rx + mcheck, ry, 0) = "#" Then
+        Exit Do
+        End If
+        Loop
+        If espace > 0 Then
+            For e = 1 To espace - 1
+            nx = rx + e + 1
+            ny = ry
+            grid(nx, ny, 0) = grid(nx - 1, ny, 0)
+            Cells(ny + 1, nx + 2) = grid(nx - 1, ny, 0)
+            grid(nx, ny, 1) = grid(nx - 1, ny, 1)
+            grid(nx - 1, ny, 1) = 0
+            'box(grid(nx, ny, 1), 0) = nx
+            'box(grid(nx, ny, 1), 1) = ny
+            Next e
+        rx = rx + 1
+        grid(rx, ry, 0) = "@"
+        grid(rx - 1, ry, 0) = "."
+        'Cells(ry + 1, rx + 2) = "@"
+        'Cells(ry + 1, rx + 1) = "."
+        End If
+        End Select
+    Case "<"
+    d2w = rx - 1
+        Select Case grid(rx - 1, ry, 0)
+        Case "."
+        rx = rx - 1
+        grid(rx, ry, 0) = "@"
+        grid(rx + 1, ry, 0) = "."
+        'Cells(ry + 1, rx + 2) = "@"
+        'Cells(ry + 1, rx + 3) = "."
+        Case "O"
+        mcheck = 0
+        espace = 0
+        Do Until mcheck = d2w
+        mcheck = mcheck + 1
+        If grid(rx - mcheck, ry, 0) = "." Then
+        espace = mcheck
+        Exit Do
+        End If
+        If grid(rx - mcheck, ry, 0) = "#" Then
+        Exit Do
+        End If
+        Loop
+        If espace > 0 Then
+            For e = 1 To espace - 1
+            nx = rx - (espace - e + 1)
+            ny = ry
+            grid(nx, ny, 0) = grid(nx + 1, ny, 0)
+            'Cells(ny + 1, nx + 2) = grid(nx + 1, ny, 0)
+            grid(nx, ny, 1) = grid(nx + 1, ny, 1)
+            grid(nx + 1, ny, 1) = 0
+            'box(grid(nx, ny, 1), 0) = nx
+            'box(grid(nx, ny, 1), 1) = ny
+            Next e
+        rx = rx - 1
+        grid(rx, ry, 0) = "@"
+        grid(rx + 1, ry, 0) = "."
+        'Cells(ry + 1, rx + 2) = "@"
+        'Cells(ry + 1, rx + 3) = "."
+        End If
+        End Select
+    End Select
+Next m
+
+'For b = 1 To bcount
+'xd = box(b, 0)
+'yd = box(b, 1)
+'gps = xd + 100 * yd
+'Debug.Print xd, yd, gps
+'p1 = p1 + gps
+'Next b
+
+p1 = 0
+For x = 1 To gridl
+    For y = 1 To gridl
+    If grid(x, y, 0) = "O" Then
+    gps = 100 * y + x
+    p1 = p1 + gps
+    End If
+    Next y
+Next x
+
+Debug.Print p1
+
+End Sub
