@@ -1,0 +1,188 @@
+Sub AOC2024D16BOTH()
+
+Dim grid() As Variant
+Dim paths() As Variant
+gridh = WorksheetFunction.CountA(Range("a:a"))
+gridl = Len(Range("a1"))
+
+ReDim grid(gridl, gridh, 5)
+minscore = gridh * gridl * 1000
+ReDim paths(minscore, 7)
+
+For y = 1 To gridh
+gy = gridh - y + 1
+    For x = 1 To gridl
+    grid(x, y, 0) = Mid(Range("a" & gy), x, 1)
+    grid(x, y, 1) = minscore 'north facing minscore
+    grid(x, y, 2) = minscore 'south facing minscore
+    grid(x, y, 3) = minscore 'east facing minscore
+    grid(x, y, 4) = minscore 'east facing minscore
+    grid(x, y, 5) = 0 'is on minscore path
+    If grid(x, y, 0) = "S" Then
+    sx = x
+    sy = y
+    End If
+    If grid(x, y, 0) = "E" Then
+    ex = x
+    ey = y
+    End If
+    'Debug.Print x, y, grid(x, y)
+    'Cells(gy, x + 1) = grid(x, y)
+    Next x
+Next y
+
+pcount = 1
+pchecked = 0
+
+paths(1, 0) = sx 'startx
+paths(1, 1) = sy 'starty
+paths(1, 2) = "E" 'start direction
+paths(1, 3) = 0 'step count
+paths(1, 4) = 0 'turn count
+paths(1, 5) = 0 'path score
+paths(1, 6) = "_" & sx & "," & sy & "_" 'coordlist
+
+curp = 1
+Do Until pchecked = pcount Or curp > pcount
+cx = paths(curp, 0)
+cy = paths(curp, 1)
+cd = paths(curp, 2)
+cs = paths(curp, 3)
+ct = paths(curp, 4)
+cscore = paths(curp, 5)
+finished = False
+    Do Until finished = True
+    If grid(cx + 1, cy, 0) <> "#" And cd <> "W" And cd <> "E" And grid(cx + 1, cy, 3) > cscore + 1001 Then
+    pcount = pcount + 1
+    paths(pcount, 0) = cx
+    paths(pcount, 1) = cy
+    paths(pcount, 2) = "E"
+    paths(pcount, 3) = cs
+    paths(pcount, 4) = ct + 1
+    paths(pcount, 5) = cscore + 1000
+    paths(pcount, 6) = paths(curp, 6)
+    End If
+    If grid(cx - 1, cy, 0) <> "#" And cd <> "E" And cd <> "W" And grid(cx + 1, cy, 4) > cscore + 1001 Then
+    pcount = pcount + 1
+    paths(pcount, 0) = cx
+    paths(pcount, 1) = cy
+    paths(pcount, 2) = "W"
+    paths(pcount, 3) = cs
+    paths(pcount, 4) = ct + 1
+    paths(pcount, 5) = cscore + 1000
+    paths(pcount, 6) = paths(curp, 6)
+    End If
+    If grid(cx, cy + 1, 0) <> "#" And cd <> "S" And cd <> "N" And grid(cx, cy + 1, 1) > cscore + 1001 Then
+    pcount = pcount + 1
+    paths(pcount, 0) = cx
+    paths(pcount, 1) = cy
+    paths(pcount, 2) = "N"
+    paths(pcount, 3) = cs
+    paths(pcount, 4) = ct + 1
+    paths(pcount, 5) = cscore + 1000
+    paths(pcount, 6) = paths(curp, 6)
+    End If
+    If grid(cx, cy - 1, 0) <> "#" And cd <> "N" And cd <> "S" And grid(cx, cy - 1, 2) > cscore + 1001 Then
+    pcount = pcount + 1
+    paths(pcount, 0) = cx
+    paths(pcount, 1) = cy
+    paths(pcount, 2) = "S"
+    paths(pcount, 3) = cs
+    paths(pcount, 4) = ct + 1
+    paths(pcount, 5) = cscore + 1000
+    paths(pcount, 6) = paths(curp, 6)
+    End If
+    Select Case cd
+    Case "N"
+    If grid(cx, cy + 1, 0) = "#" Then
+    finished = True
+    Else
+    cy = cy + 1
+    cs = cs + 1
+    cscore = cscore + 1
+    End If
+    Case "S"
+    If grid(cx, cy - 1, 0) = "#" Then
+    finished = True
+    Else
+    cy = cy - 1
+    cs = cs + 1
+    cscore = cscore + 1
+    End If
+    Case "E"
+    If grid(cx + 1, cy, 0) = "#" Then
+    finished = True
+    Else
+    cx = cx + 1
+    cs = cs + 1
+    cscore = cscore + 1
+    End If
+    Case "W"
+    If grid(cx - 1, cy, 0) = "#" Then
+    finished = True
+    Else
+    cx = cx - 1
+    cs = cs + 1
+    cscore = cscore + 1
+    End If
+    End Select
+    If cx = ex And cy = ey Then
+    finished = True
+    paths(curp, 7) = 1
+        If cscore < minscore Then
+        minscore = cscore
+        End If
+    End If
+    If finished = True Then
+    pchecked = pchecked + 1
+    Else
+        Select Case cd
+        Case "N"
+        If cscore < grid(cx, cy, 1) Then
+        grid(cx, cy, 1) = cscore
+        End If
+        Case "S"
+        If cscore < grid(cx, cy, 2) Then
+        grid(cx, cy, 2) = cscore
+        End If
+        Case "E"
+        If cscore < grid(cx, cy, 3) Then
+        grid(cx, cy, 3) = cscore
+        End If
+        Case "W"
+        If cscore < grid(cx, cy, 4) Then
+        grid(cx, cy, 4) = cscore
+        End If
+        End Select
+    End If
+    paths(curp, 5) = cscore
+    paths(curp, 6) = paths(curp, 6) & cx & "," & cy & "_"
+    Loop
+curp = curp + 1
+    Do Until paths(curp, 5) < minscore
+    curp = curp + 1
+    Loop
+Loop
+    
+Debug.Print minscore 'p1 answer
+
+tilecount = 0
+For p = 1 To pcount
+If paths(p, 5) = minscore And paths(p, 7) = 1 Then
+clist = paths(p, 6)
+cordcount = Len(clist) - Len(Replace(clist, "_", "")) - 1
+    For c = 1 To cordcount
+    tcord = Split(clist, "_")(c)
+    tx = Split(tcord, ",")(0)
+    ty = Split(tcord, ",")(1)
+        If grid(tx, ty, 5) = 0 Then
+        grid(tx, ty, 5) = 1
+        tilecount = tilecount + 1
+        End If
+    Next c
+End If
+Next p
+
+Debug.Print tilecount 'p2 answer
+
+End Sub
