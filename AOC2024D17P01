@@ -1,0 +1,80 @@
+Sub AOC2024D17P01()
+
+Dim register() As Variant
+Dim ostring As String
+Dim istring As String
+Dim newo As String
+
+ReDim register(3, 2)
+
+ostring = ""
+istring = Split(Replace(Range("a5"), ",", ""), ": ")(1)
+ilen = Len(istring)
+register(1, 0) = "A" 'register name
+register(1, 1) = CLng(Split(Range("a1"), ": ")(1)) 'register start value
+register(1, 2) = register(1, 1) 'register current value
+register(2, 0) = "B"
+register(2, 1) = CLng(Split(Range("a2"), ": ")(1))
+register(2, 2) = register(2, 1)
+register(3, 0) = "A"
+register(3, 1) = CLng(Split(Range("a3"), ": ")(1))
+register(3, 2) = register(3, 1)
+
+iset = ilen / 2 - 1
+iplace = 0
+Do Until iplace > ilen - 1
+loopcount = loopcount + 1
+ipair = Mid(istring, iplace + 1, 2)
+opcode = CInt(Left(ipair, 1))
+operand = CInt(Right(ipair, 1))
+    Select Case operand
+    Case Is < 4
+    combo = operand
+    Case 4
+    combo = register(1, 2)
+    Case 5
+    combo = register(2, 2)
+    Case 6
+    combo = register(3, 2)
+    Case Else
+    MsgBox "NOW YA FUCKED UP!"
+    End Select
+Select Case opcode
+Case 0
+rvalue = WorksheetFunction.RoundDown(register(1, 2) / 2 ^ combo, 0)
+register(1, 2) = rvalue
+Case 1
+rvalue = WorksheetFunction.Bitxor(register(2, 2), operand)
+register(2, 2) = rvalue
+Case 2
+rvalue = combo Mod 8
+register(2, 2) = rvalue
+Case 3
+If register(1, 2) <> 0 Then
+iplace = operand
+End If
+Case 4
+ovalue = WorksheetFunction.Bitxor(register(2, 2), register(3, 2))
+register(2, 2) = ovalue
+Case 5
+ovalue = combo Mod 8
+newo = CStr(ovalue)
+ostring = WorksheetFunction.TextJoin(",", True, ostring, newo)
+Case 6
+rvalue = WorksheetFunction.RoundDown(register(1, 2) / 2 ^ combo, 0)
+register(2, 2) = rvalue
+Case 7
+rvalue = WorksheetFunction.RoundDown(register(1, 2) / 2 ^ combo, 0)
+register(3, 2) = rvalue
+End Select
+If opcode = 3 And register(1, 2) <> 0 Then
+    'do nothing
+    Else
+    iplace = iplace + 2
+End If
+'Debug.Print ostring, loopcount, iplace, rvalue
+Loop
+
+Debug.Print ostring
+
+End Sub
