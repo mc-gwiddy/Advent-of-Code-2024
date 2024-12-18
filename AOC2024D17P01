@@ -54,9 +54,10 @@ If register(1, 2) <> 0 Then
 iplace = operand
 End If
 Case 4
-ovalue = WorksheetFunction.Bitxor(register(2, 2), register(3, 2))
+rvalue = WorksheetFunction.Bitxor(register(2, 2), register(3, 2))
 register(2, 2) = ovalue
 Case 5
+rvalue = "-"
 ovalue = combo Mod 8
 newo = CStr(ovalue)
 ostring = WorksheetFunction.TextJoin(",", True, ostring, newo)
