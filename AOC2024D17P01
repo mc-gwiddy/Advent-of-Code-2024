@@ -55,7 +55,7 @@ iplace = operand
 End If
 Case 4
 rvalue = WorksheetFunction.Bitxor(register(2, 2), register(3, 2))
-register(2, 2) = ovalue
+register(2, 2) = rvalue
 Case 5
 rvalue = "-"
 ovalue = combo Mod 8
