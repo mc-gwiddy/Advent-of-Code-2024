@@ -1,0 +1,72 @@
+Sub AOC2024D19P01()
+
+Dim towel() As Variant
+Dim design() As Variant
+Dim places() As Variant
+rcount = WorksheetFunction.CountA(Range("a:a"))
+tlist = Range("a1")
+tcount = Len(tlist) - Len(Replace(tlist, ",", ""))
+maxtlen = 1
+
+ReDim towel(tcount)
+For t = 0 To tcount
+towel(t) = Split(tlist, ", ")(t)
+If Len(towel(t)) > maxtlen Then
+maxtlen = Len(towel(t))
+End If
+Next t
+
+dscount = rcount - 2
+ReDim design(dscount)
+For r = 3 To rcount + 1
+design(r - 3) = Range("a" & r)
+Next r
+
+p1 = 0
+For d = 0 To dscount
+dtest = design(d)
+dlen = Len(dtest)
+ReDim places(dlen)
+openp = 1
+possible = False
+places(0) = 1
+For p = 0 To dlen - 1
+dbase = p + 1
+maxdbase = 1
+prevdbase = -1
+dstring = Left(dtest, dbase)
+    If places(p) = 1 Then
+        Do Until possible = True Or prevdbase = dbase
+            For t = 0 To tcount
+            twl = towel(t)
+            tlen = Len(twl)
+                If Mid(dtest, dbase, tlen) = twl Then
+                nbase = dbase + tlen - 1
+                    If nbase < dlen Then
+                    places(nbase) = 1
+                    End If
+                    If nbase >= maxdbase Then
+                    maxdbase = nbase + 1
+                    End If
+                End If
+            Next t
+        dstring = Left(dtest, maxdbase - 1)
+        prevdbase = dbase
+        dbase = maxdbase
+        If dstring = dtest Then
+        possible = True
+        Exit Do
+        End If
+        Loop
+    End If
+Next p
+
+If possible = True Then
+p1 = p1 + 1
+End If
+'Debug.Print d, possible, dtest
+Next d
+        
+Debug.Print p1
+
+End Sub
