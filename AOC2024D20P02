@@ -88,12 +88,13 @@ grid(cx, cy, 2) = ttc
 Loop
 
 cheatnum = 0
-For p = 0 To ttc
+For p = 0 To ttc - 1
 csx = path(p, 0)
 csy = path(p, 1)
 nt = grid(csx, csy, 2)
-    For y = 1 To gridh
-        For x = 1 To gridl
+    For p2 = p To ttc
+        x = path(p2, 0)
+        y = path(p2, 1)
         md = Abs(x - csx) + Abs(y - csy)
         dt = grid(x, y, 2)
         If grid(x, y, 0) = "." Or grid(x, y, 0) = "E" Then
@@ -105,8 +106,7 @@ nt = grid(csx, csy, 2)
             'Debug.Print p, cheatnum, cheat(cheatnum, 1)
             End If
         End If
-        Next x
-    Next y
+    Next p2
 Next p
 
 goodcheats = 0
