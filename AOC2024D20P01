@@ -1,0 +1,172 @@
+Sub AOC2024D20P01()
+
+Dim grid() As Variant
+Dim path() As Variant
+Dim cheat() As Variant
+gridh = WorksheetFunction.CountA(Range("A:A"))
+gridl = Len(Range("a1"))
+
+ReDim grid(gridl, gridh, 2)
+ReDim path(gridl * gridh, 1)
+ReDim cheat(gridl * gridh * 4, 1)
+
+isgoodcheat = 100
+
+For y = 1 To gridh
+    For x = 1 To gridl
+    yrow = Range("a" & y)
+    gv = Mid(yrow, x, 1)
+    grid(x, y, 0) = gv
+    Select Case gv
+    Case "S"
+    sx = x
+    sy = y
+    Case "E"
+    ex = x
+    ey = y
+    End Select
+    Next x
+Next y
+
+path(0, 0) = sx
+path(0, 1) = sy
+grid(sx, sy, 2) = 0
+cx = sx
+cy = sy
+ttc = 0
+cd = 0
+Do Until cx = ex And cy = ey
+ttc = ttc + 1
+    For d = 1 To 4
+        Select Case d
+        Case 1
+            ny = cy - 1 'up
+        If grid(cx, ny, 0) = "." Or grid(cx, ny, 0) = "E" Then
+            If cd <> 2 Then
+            grid(cx, cy, 1) = 1
+            cy = ny
+            cd = 1
+            Exit For
+            End If
+        End If
+        Case 2
+        ny = cy + 1 'down
+        If grid(cx, ny, 0) = "." Or grid(cx, ny, 0) = "E" Then
+            If cd <> 1 Then
+            grid(cx, cy, 1) = 2
+            cy = ny
+            cd = 2
+            Exit For
+            End If
+        End If
+        Case 3
+        nx = cx - 1 'left
+        If grid(nx, cy, 0) = "." Or grid(nx, cy, 0) = "E" Then
+            If cd <> 4 Then
+            grid(cx, cy, 1) = 3
+            cx = nx
+            cd = 3
+            Exit For
+            End If
+        End If
+        Case 4
+        nx = cx + 1 'right
+        If grid(nx, cy, 0) = "." Or grid(nx, cy, 0) = "E" Then
+            If cd <> 3 Then
+            grid(cx, cy, 1) = 4
+            cx = nx
+            cd = 4
+            Exit For
+            End If
+        End If
+        End Select
+    Next d
+'Debug.Print ttc, cx, cy
+path(ttc, 0) = cx
+path(ttc, 1) = cy
+grid(cx, cy, 2) = ttc
+Loop
+
+cheatnum = 0
+For p = 0 To ttc
+csx = path(p, 0)
+csy = path(p, 1)
+    For d = 1 To 4
+    cx = csx
+    cy = csy
+    cd = grid(cx, cy, 1)
+        Select Case d
+            Case 1
+            Select Case cy
+            Case Is > 1
+            ny = cy - 1 'up
+            If grid(cx, ny, 0) = "#" Then
+                If grid(cx, ny - 1, 0) <> "#" Then
+                cy = ny - 1
+                cd = 1
+                End If
+            End If
+            Case Else
+            cy = 0
+            End Select
+            Case 2
+            Select Case cy
+            Case Is < gridh - 1
+            ny = cy + 1 'down
+            If grid(cx, ny, 0) = "#" Then
+                If grid(cx, ny + 1, 0) <> "#" Then
+                cy = ny + 1
+                cd = 2
+                End If
+            End If
+            Case Else
+            cy = 0
+            End Select
+            Case 3
+            Select Case cx
+            Case Is > 1
+            nx = cx - 1 'left
+            If grid(nx, cy, 0) = "#" Then
+                If grid(nx - 1, cy, 0) <> "#" Then
+                cx = nx - 1
+                cd = 3
+                End If
+            End If
+            Case Else
+            cx = 0
+            End Select
+            Case 4
+            Select Case cx
+            Case Is < gridl - 1
+            nx = cx + 1 'right
+            If grid(nx, cy, 0) = "#" Then
+                If grid(nx + 1, cy, 0) <> "#" Then
+                cx = nx + 1
+                cd = 4
+                End If
+            End If
+            Case Else
+            cx = 0
+            End Select
+        End Select
+    If cx & "-" & cy <> csx & "-" & csy And cy > 0 And cy < gridh And cx > 0 And cx < gridl Then
+    nt = p + 2
+    cheatnum = cheatnum + 1
+    cheat(cheatnum, 0) = p + 2 + (ttc - grid(cx, cy, 2))
+    cheat(cheatnum, 1) = ttc - cheat(cheatnum, 0)
+    'Debug.Print p, cheatnum, cheat(cheatnum, 1)
+    End If
+    Next d
+Next p
+
+goodcheats = 0
+For c = 1 To cheatnum
+If cheat(c, 1) >= isgoodcheat Then
+goodcheats = goodcheats + 1
+'Debug.Print c, cheat(c, 1)
+End If
+Next c
+
+Debug.Print goodcheats
+
+End Sub
