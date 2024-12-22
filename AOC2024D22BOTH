@@ -1,0 +1,82 @@
+Public Function sndata(prevsn As LongLong) As String
+
+Dim sn As LongLong
+
+sn1 = prevsn * 64
+sn = WorksheetFunction.Bitxor(prevsn, sn1)
+sn = sn Mod 16777216
+sn2 = WorksheetFunction.RoundDown(sn / 32, 0)
+sn = WorksheetFunction.Bitxor(sn, sn2)
+sn = sn Mod 16777216
+sn3 = sn * 2048
+sn = WorksheetFunction.Bitxor(sn, sn3)
+sn = sn Mod 16777216
+
+dif = Right(CStr(sn), 1) - Right(CStr(prevsn), 1)
+sndata = CStr(sn) & "_" & dif
+
+End Function
+
+Sub AOC2024D22BOTH()
+
+Dim r As LongLong
+Dim bsum As LongLong
+
+bcount = WorksheetFunction.CountA(Range("A:A"))
+ReDim seql(10000 * bcount, 7)
+ReDim snlist(2000 * bcount, 5)
+
+maxprice = 0
+seql(0, 0) = ""
+seql(0, 1) = 0
+seqcount = 0
+rsum = 0
+sncount = 0
+For b = 1 To bcount
+r = Range("a" & b) * 1
+snstart = sncount + 1
+    For s = 1 To 2000
+    sncount = sncount + 1
+    newsn = sndata(r)
+    r = 1 * Split(newsn, "_")(0)
+    pc = CInt(Split(newsn, "_")(1))
+    snlist(sncount, 0) = CInt(Right(CStr(r), 1))
+    snlist(sncount, 1) = pc
+    snlist(sncount, 2) = b
+        If s > 3 Then
+        seqstr = WorksheetFunction.TextJoin(",", True, snlist(sncount - 3, 1), snlist(sncount - 2, 1), snlist(sncount - 1, 1), snlist(sncount, 1))
+        seqfound = False
+        If seqstr = "-2,1,-1,3" Then
+        pause = 0
+        End If
+            For seqcheck = 0 To seqcount
+            If seql(seqcheck, 0) = seqstr Then
+            seqfound = True
+            scn = seqcheck
+            Exit For
+            End If
+            Next seqcheck
+            If seqfound = False Then
+            seqcount = seqcount + 1
+            scn = seqcount
+            seql(seqcount, 0) = seqstr
+            seql(seqcount, 3) = b
+            seql(seqcount, 4) = snlist(sncount, 0)
+            End If
+            If seqfound = True And b <> seql(scn, 3) Then
+            seql(scn, 3) = b
+            seql(scn, 4) = seql(scn, 4) + snlist(sncount, 0)
+            End If
+        End If
+            If seql(scn, 4) > maxprice Then
+            maxprice = seql(scn, 4)
+            End If
+    Next s
+rsum = rsum + r
+Next b
+
+p1 = rsum
+p2 = maxprice
+
+Debug.Print p1, p2
+End Sub
