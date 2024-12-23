@@ -1,0 +1,76 @@
+Sub AOC2024D23P01()
+
+linkcount = WorksheetFunction.CountA(Range("a:a"))
+Dim links() As Variant
+Dim node() As Variant
+ReDim links(linkcount * 2, 1)
+ReDim node(linkcount * 2, 1)
+
+For l = 1 To linkcount
+lv = Range("a" & l)
+n1 = Split(lv, "-")(0)
+n2 = Split(lv, "-")(1)
+ladd = ladd + 2
+links(ladd - 1, 0) = n1
+links(ladd - 1, 1) = n2
+links(ladd, 0) = n2
+links(ladd, 1) = n1
+        nfound = False
+        For n = 1 To ncount
+        If node(n, 0) = n1 Then
+        nfound = True
+        node(n, 1) = node(n, 1) & n2 & ","
+        Exit For
+        End If
+        Next n
+        If nfound = False Then
+        ncount = ncount + 1
+        node(ncount, 0) = n1
+        node(ncount, 1) = node(ncount, 1) & n2 & ","
+        End If
+        nfound = False
+        For n = 1 To ncount
+        If node(n, 0) = n2 Then
+        nfound = True
+        node(n, 1) = node(n, 1) & n1 & ","
+        Exit For
+        End If
+        Next n
+        If nfound = False Then
+        ncount = ncount + 1
+        node(ncount, 0) = n2
+        node(ncount, 1) = node(ncount, 1) & n1 & ","
+        End If
+Next l
+
+'Debug.Print ncount
+tnets = 0
+multit = 0
+For net1 = 1 To ncount
+basen = node(net1, 0)
+lks = node(net1, 1)
+lnknum = Len(lks) - Len(Replace(lks, ",", ""))
+    If Left(basen, 1) = "t" Then
+        For ltest = 0 To lnknum
+        testv = Split(lks, ",")(ltest)
+        p1 = InStr(1, lks, testv)
+            For last = 1 To linkcount * 2
+            If links(last, 0) = testv And links(last, 1) <> basen Then
+            p2 = InStr(1, lks, links(last, 1))
+                If p2 > p1 Then
+                tnets = tnets + 1
+                    If Left(testv, 1) = "t" Or Left(links(last, 1), 1) = "t" Then
+                    multit = multit + 1
+                    End If
+                'Debug.Print basen, testv, links(last, 1)
+                End If
+            End If
+            Next last
+        Next ltest
+    End If
+Next net1
+
+tnets = tnets - WorksheetFunction.RoundUp(multit / 2, 0)
+Debug.Print tnets
+
+End Sub
