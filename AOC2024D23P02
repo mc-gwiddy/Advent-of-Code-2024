@@ -1,0 +1,85 @@
+Sub AOC2024D23P02()
+
+linkcount = WorksheetFunction.CountA(Range("a:a"))
+ncount = WorksheetFunction.CountA(Range("b:b"))
+Dim links() As Variant
+Dim node() As Variant
+Dim network() As Variant
+Dim c As Integer
+ReDim links(linkcount, 1)
+ReDim node(ncount, 2)
+ReDim networks(linkcount * 2, 1)
+Dim neta() As Variant
+ReDim neta(ncount)
+Dim netcount As Integer
+
+For n = 1 To ncount
+node(n, 0) = Range("b" & n)
+node(n, 1) = Range("c" & n)
+node(n, 2) = node(n, 0) & "," & node(n, 1)
+Next n
+
+maxlen = 0
+
+For n = 1 To ncount
+nadd = 1
+basen = node(n, 0)
+clist = node(n, 1)
+neta(1) = basen
+ccount = Len(clist) - Len(Replace(clist, ",", ""))
+        For c = 0 To ccount
+            For nclear = 1 To prevnadd
+            If nclear > 2 Then
+            neta(nclear) = ""
+            End If
+            Next nclear
+        nadd = 2
+        ccheck = Split(clist, ",")(c)
+        neta(2) = ccheck
+        n2 = WorksheetFunction.XLookup(ccheck, Range("b1:b5000"), Range("d1:d5000"))
+        prevnadd = 1
+            Do Until nadd = prevnadd
+            prevnadd = nadd
+                For ntest = 1 To ncount
+                tv = node(ntest, 0)
+                If ntest <> n And ntest <> n2 Then
+                    tlist = node(ntest, 1)
+                    addable = True
+                        For ntest2 = 1 To nadd
+                            If InStr(tlist, neta(ntest2)) = 0 Then
+                            addable = False
+                            Exit For
+                            End If
+                        Next ntest2
+                    If addable = True Then
+                    nadd = nadd + 1
+                    neta(nadd) = tv
+                    End If
+                End If
+                Next ntest
+            Loop
+    netstring = WorksheetFunction.TextJoin(",", True, WorksheetFunction.Sort(neta, 1, 1, True))
+    netlen = Len(netstring) - Len(Replace(netstring, ",", "")) + 1
+    newnet = True
+        For netadd = 0 To netcount
+            If netstring = networks(netadd, 0) Then
+            newnet = False
+            Exit For
+            End If
+        Next netadd
+        If newnet = True Then
+        netcount = netcount + 1
+        networks(netcount, 0) = netstring
+        networks(netcount, 1) = netlen
+            If netlen > maxlen Then
+            maxlen = netlen
+            lanpass = netstring
+            End If
+        End If
+    Next c
+Next n
+
+p2 = lanpass
+Debug.Print p2
+
+End Sub
