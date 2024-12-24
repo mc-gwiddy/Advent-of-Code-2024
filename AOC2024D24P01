@@ -1,0 +1,151 @@
+Public Function myBin2Dec(binValue As String) As Double
+ Dim decValue As Double
+ For i = 0 To Len(binValue) - 1
+  decValue = decValue + Mid(binValue, i + 1, 1) * (2 ^ (Len(binValue) - 1 - i))
+ Next
+ myBin2Dec = decValue
+End Function
+
+Sub AOC2024D24P01()
+
+linec = WorksheetFunction.CountA(Range("a:a"))
+xyc = WorksheetFunction.CountIfs(Range("a:a"), "*:*")
+gatec = WorksheetFunction.CountIfs(Range("a:a"), "*>*")
+
+Dim terminal() As Variant
+Dim gate() As Variant
+Dim zstring As String
+ReDim terminal(xyc + gatec * 3, 1)
+ReDim gate(gatec, 7)
+maxz = -1
+
+For l = 1 To xyc
+lstring = Range("a" & l)
+wires = wires + 1
+terminal(wires, 0) = Split(lstring, ": ")(0) 'wire name
+terminal(wires, 1) = Split(lstring, ": ")(1) 'wire terminal index
+Next l
+
+For g = xyc + 2 To xyc + gatec + 1
+gstring = Range("a" & g)
+gcount = gcount + 1
+owire = Split(gstring, " -> ")(1)
+znum = Right(owire, 2)
+If Left(owire, 1) = "z" And Asc(Right(znum, 1)) > 47 And Asc(Right(znum, 1)) < 57 Then
+    If CInt(znum) > maxz Then
+    maxz = CInt(znum)
+    End If
+End If
+gate(gcount, 5) = owire 'output wire string
+iwires = Split(gstring, " -")(0)
+iwire1 = Split(iwires, " ")(0)
+iwire2 = Split(iwires, " ")(2)
+gate(gcount, 1) = iwire1 'input wire 1 string
+gate(gcount, 3) = iwire2 'input wire 2 string
+op = Split(iwires, " ")(1)
+gate(gcount, 0) = op
+iw1found = False
+iw2found = False
+owfound = False
+    For t = 1 To wires
+    tcheck = terminal(t, 0)
+        Select Case tcheck
+        Case owire
+        owfound = True
+        gate(gcount, 6) = t 'output wire terminal index
+        Case iwire1
+        iw1found = True
+        gate(gcount, 1) = iwire1 'input wire 1 string
+        gate(gcount, 2) = t 'input wire 1 terminal index
+        Case iwire2
+        iw2found = True
+        gate(gcount, 3) = iwire2 'input wire 2 string
+        gate(gcount, 4) = t 'input wire 2 terminal index
+        End Select
+    Next t
+If iw1found = False Then
+wires = wires + 1
+terminal(wires, 0) = iwire1
+terminal(wires, 1) = "X"
+gate(gcount, 2) = wires 'input wire 1 terminal index
+End If
+If iw2found = False Then
+wires = wires + 1
+terminal(wires, 0) = iwire2
+terminal(wires, 1) = "X"
+gate(gcount, 4) = wires 'input wire 1 terminal index
+End If
+If owfound = False Then
+wires = wires + 1
+terminal(wires, 0) = owire
+terminal(wires, 1) = "X"
+gate(gcount, 6) = wires 'input wire 1 terminal index
+End If
+gate(gcount, 7) = "X"
+Next g
+
+xcount = gatec
+
+Do Until xcount = 0
+    For rule = 1 To gatec
+    w1 = gate(rule, 2)
+    w2 = gate(rule, 4)
+    op = gate(rule, 0)
+    ow = gate(rule, 6)
+    w1charge = terminal(w1, 1)
+    w2charge = terminal(w2, 1)
+        If gate(rule, 7) = "X" Then
+            If w1charge <> "X" And w2charge <> "X" Then
+            w1charge = CInt(w1charge)
+            w2charge = CInt(w2charge)
+            xcount = xcount - 1
+                Select Case op
+                Case "AND"
+                    If WorksheetFunction.Bitand(w1charge, w2charge) = 1 Then
+                    gate(rule, 7) = 1
+                    terminal(ow, 1) = 1
+                    Else
+                    gate(rule, 7) = 0
+                    terminal(ow, 1) = 0
+                    End If
+                Case "OR"
+                    If WorksheetFunction.Bitor(w1charge, w2charge) = 1 Then
+                    gate(rule, 7) = 1
+                    terminal(ow, 1) = 1
+                    Else
+                    gate(rule, 7) = 0
+                    terminal(ow, 1) = 0
+                    End If
+                Case "XOR"
+                    If WorksheetFunction.Bitxor(w1charge, w2charge) = 1 Then
+                    gate(rule, 7) = 1
+                    terminal(ow, 1) = 1
+                    Else
+                    gate(rule, 7) = 0
+                    terminal(ow, 1) = 0
+                    End If
+                End Select
+            End If
+        End If
+    Next rule
+Loop
+        
+zstring = ""
+
+    For Z = 0 To maxz
+    searchz = maxz - Z
+        For w = 1 To wires
+        If Left(terminal(w, 0), 1) = "z" Then
+            If CInt(Right(terminal(w, 0), 2)) = searchz Then
+            zstring = zstring & terminal(w, 1)
+            End If
+        End If
+        Next w
+    'Debug.Print searchz, Right(zstring, 1)
+    Next Z
+    
+p1 = myBin2Dec(zstring)
+
+Debug.Print p1
+
+End Sub
