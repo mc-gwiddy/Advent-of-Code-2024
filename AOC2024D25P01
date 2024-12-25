@@ -1,0 +1,74 @@
+Sub AOC2024D25P01()
+
+rcount = WorksheetFunction.CountA(Range("a:a"))
+Dim keys() As Variant
+Dim locks() As Variant
+
+kl = rcount / 7
+
+ReDim keys(kl, 6)
+ReDim locks(kl, 6)
+
+For grid = 1 To kl
+islock = False
+srow = (grid - 1) * 8 + 1
+If Range("a" & srow) = "#####" Then
+lockc = lockc + 1
+locks(lockc, 6) = ""
+islock = True
+Else
+keyc = keyc + 1
+keys(keyc, 6) = ""
+End If
+    Select Case islock
+    Case True
+        For x = 1 To 5
+        colcount = 0
+            For y = 1 To 5
+            cv = Mid(Range("a" & srow + y), x, 1)
+            If cv = "#" Then
+            colcount = colcount + 1
+            Else
+            Exit For
+            End If
+            Next y
+        locks(lockc, x) = colcount
+        locks(lockc, 6) = WorksheetFunction.TextJoin(",", True, locks(lockc, 6), colcount)
+        Next x
+    Case False
+        For x = 1 To 5
+        colcount = 5
+            For y = 1 To 5
+            cv = Mid(Range("a" & srow + y), x, 1)
+            If cv = "." Then
+            colcount = colcount - 1
+            Else
+            Exit For
+            End If
+            Next y
+        keys(keyc, x) = colcount
+        keys(keyc, 6) = WorksheetFunction.TextJoin(",", True, keys(keyc, 6), colcount)
+        Next x
+    End Select
+Next grid
+           
+           
+For l = 1 To lockc
+    For k = 1 To keyc
+    fits = True
+        For col = 1 To 5
+        If locks(l, col) + keys(k, col) > 5 Then
+        fits = False
+        Exit For
+        End If
+        Next col
+    If fits = True Then
+    p1 = p1 + 1
+    End If
+    'Debug.Print locks(l, 6) & "_" & keys(k, 6)
+    Next k
+Next l
+
+Debug.Print p1
+
+End Sub
